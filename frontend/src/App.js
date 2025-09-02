@@ -1405,6 +1405,7 @@ function App() {
   });
   const [skillsEditEmployee, setSkillsEditEmployee] = useState(null);
   const [showSkillsDialog, setShowSkillsDialog] = useState(false);
+  const [sickDaysData, setSickDaysData] = useState({});
 
   // Load initial data
   useEffect(() => {
