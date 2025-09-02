@@ -320,13 +320,15 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
       setFormData({
         name: editingEmployee.name,
         email: editingEmployee.email,
-        role: editingEmployee.role
+        role: editingEmployee.role,
+        skills: editingEmployee.skills || []
       });
     } else {
       setFormData({
         name: '',
         email: '',
-        role: 'employee'
+        role: 'employee',
+        skills: []
       });
     }
     setError('');
