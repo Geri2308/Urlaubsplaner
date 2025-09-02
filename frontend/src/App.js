@@ -483,21 +483,43 @@ const VacationDialog = ({ isOpen, onClose, onSave, employees, editingEntry = nul
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-            >
-              Abbrechen
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Speichern...' : (editingEntry ? 'Aktualisieren' : 'Erstellen')}
-            </button>
+          <div className="flex justify-between pt-4">
+            {editingEntry && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (window.confirm('Urlaubseintrag wirklich löschen?')) {
+                    try {
+                      await axios.delete(`${API}/vacation-entries/${editingEntry.id}`);
+                      onSave(); // Reload data
+                      onClose();
+                    } catch (err) {
+                      alert('Fehler beim Löschen des Urlaubseintrags');
+                    }
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 mr-1 inline" />
+                Löschen
+              </button>
+            )}
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Speichern...' : (editingEntry ? 'Aktualisieren' : 'Erstellen')}
+              </button>
+            </div>
           </div>
         </form>
       </div>
