@@ -45,7 +45,7 @@ const Dashboard = ({ currentUser }) => {
     </div>;
   }
 
-  const { vacation_balance, recent_requests, upcoming_vacations } = dashboardData;
+  const { vacation_balance, recent_requests, upcoming_vacations } = dashboardData || { vacation_balance: {}, recent_requests: [], upcoming_vacations: [] };
 
   return (
     <div className="space-y-6">
