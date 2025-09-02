@@ -1492,9 +1492,11 @@ function App() {
     loadData(); // Reload data after save
   };
 
-  const handleSkillsSave = () => {
+  const handleSkillsSave = async () => {
     // Reload data after skills update
-    loadData();
+    await loadData();
+    // Also reload sick days data
+    await loadSickDaysData();
   };
 
   // Load sick days data for all employees
