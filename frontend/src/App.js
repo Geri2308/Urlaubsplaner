@@ -1,389 +1,1393 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
-import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { Label } from "./components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
-import { Textarea } from "./components/ui/textarea";
-import { Badge } from "./components/ui/badge";
-import { Calendar } from "./components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./components/ui/popover";
-import { CalendarIcon, Users, Clock, CheckCircle, XCircle, Calendar as CalendarDays } from "lucide-react";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
-import { cn } from "./lib/utils";
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { 
+  Calendar,
+  Users,
+  Plus,
+  Download,
+  Upload,
+  Printer,
+  Search,
+  Filter,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  X,
+  UserPlus,
+  Edit2,
+  Trash2,
+  Star,
+  Minus
+} from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Main Dashboard Component
-const Dashboard = ({ currentUser }) => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Star Rating Component
+const StarRating = ({ rating, onRatingChange, readonly = false }) => {
+  const stars = [1, 2, 3, 4, 5];
+  
+  return (
+    <div className="flex space-x-1">
+      {stars.map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={readonly}
+          onClick={() => !readonly && onRatingChange(star)}
+          className={`w-5 h-5 ${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
+        >
+          <Star
+            className={`w-full h-full ${
+              star <= rating
+                ? 'text-yellow-400 fill-yellow-400'
+                : 'text-gray-300'
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [currentUser]);
+// Skill Management Component
+const SkillManager = ({ skills, onSkillsChange }) => {
+  const [newSkillName, setNewSkillName] = useState('');
+  const [newSkillRating, setNewSkillRating] = useState(3);
 
-  const fetchDashboardData = async () => {
-    try {
-      const response = await axios.get(`${API}/dashboard/${currentUser.id}`);
-      setDashboardData(response.data);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    } finally {
-      setLoading(false);
+  const addSkill = () => {
+    if (newSkillName.trim()) {
+      const newSkill = {
+        name: newSkillName.trim(),
+        rating: newSkillRating
+      };
+      onSkillsChange([...skills, newSkill]);
+      setNewSkillName('');
+      setNewSkillRating(3);
     }
   };
 
-  if (loading || !dashboardData) {
-    return <div className="flex justify-center items-center h-screen">
-      <div className="text-lg">Lade Dashboard...</div>
-    </div>;
-  }
+  const removeSkill = (index) => {
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    onSkillsChange(updatedSkills);
+  };
 
-  const { vacation_balance, recent_requests, upcoming_vacations } = dashboardData || { vacation_balance: {}, recent_requests: [], upcoming_vacations: [] };
+  const updateSkillRating = (index, rating) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index].rating = rating;
+    onSkillsChange(updatedSkills);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Willkommen, {currentUser.name}!</h1>
-        <Badge variant="outline" className="text-lg px-4 py-2">
-          {currentUser.department}
-        </Badge>
-      </div>
-
-      {/* Vacation Balance Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Urlaubsübersicht
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{vacation_balance?.total_days || 0}</div>
-              <div className="text-sm text-gray-600">Gesamt</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-500">{vacation_balance?.used_days || 0}</div>
-              <div className="text-sm text-gray-600">Genommen</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{vacation_balance?.remaining_days || 0}</div>
-              <div className="text-sm text-gray-600">Verbleibend</div>
-            </div>
+    <div className="space-y-3">
+      <label className="block text-sm font-medium text-gray-700">
+        Fähigkeiten & Skills
+      </label>
+      
+      {/* Existing Skills */}
+      {skills.map((skill, index) => (
+        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-medium">{skill.name}</span>
+            <StarRating 
+              rating={skill.rating} 
+              onRatingChange={(rating) => updateSkillRating(index, rating)}
+            />
           </div>
-          {vacation_balance?.pending_requests > 0 && (
-            <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-              <div className="text-sm text-yellow-800">
-                {vacation_balance?.pending_requests || 0} Antrag(e) warten auf Genehmigung
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <button
+            type="button"
+            onClick={() => removeSkill(index)}
+            className="text-red-500 hover:text-red-700"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
 
-      {/* Recent Requests */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Letzte Anträge</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recent_requests.length === 0 ? (
-                <p className="text-gray-500">Keine Anträge vorhanden</p>
-              ) : (
-                recent_requests.map((request) => (
-                  <div key={request.id} className="flex justify-between items-center p-3 border rounded-lg">
-                    <div>
-                      <div className="font-medium">
-                        {format(new Date(request.start_date), "dd.MM.yyyy", { locale: de })} - 
-                        {format(new Date(request.end_date), "dd.MM.yyyy", { locale: de })}
-                      </div>
-                      <div className="text-sm text-gray-600">{request.vacation_type} • {request.days_requested} Tage</div>
-                    </div>
-                    <Badge 
-                      variant={
-                        request.status === 'approved' ? 'default' : 
-                        request.status === 'rejected' ? 'destructive' : 'secondary'
-                      }
-                    >
-                      {request.status === 'approved' ? 'Genehmigt' : 
-                       request.status === 'rejected' ? 'Abgelehnt' : 'Ausstehend'}
-                    </Badge>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Vacations */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Geplanter Urlaub</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {upcoming_vacations.length === 0 ? (
-                <p className="text-gray-500">Kein geplanter Urlaub</p>
-              ) : (
-                upcoming_vacations.map((vacation) => (
-                  <div key={vacation.id} className="flex justify-between items-center p-3 border rounded-lg bg-green-50">
-                    <div>
-                      <div className="font-medium">
-                        {format(new Date(vacation.start_date), "dd.MM.yyyy", { locale: de })} - 
-                        {format(new Date(vacation.end_date), "dd.MM.yyyy", { locale: de })}
-                      </div>
-                      <div className="text-sm text-gray-600">{vacation.vacation_type} • {vacation.days_requested} Tage</div>
-                    </div>
-                    <Badge variant="default">Genehmigt</Badge>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Add New Skill */}
+      <div className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
+        <input
+          type="text"
+          value={newSkillName}
+          onChange={(e) => setNewSkillName(e.target.value)}
+          placeholder="Neue Fähigkeit..."
+          className="flex-1 border-none outline-none text-sm"
+          onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+        />
+        <StarRating 
+          rating={newSkillRating} 
+          onRatingChange={setNewSkillRating}
+        />
+        <button
+          type="button"
+          onClick={addSkill}
+          className="text-green-600 hover:text-green-800"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
 };
 
-// Vacation Request Form Component
-const VacationRequestForm = ({ currentUser, onSuccess }) => {
-  const [formData, setFormData] = useState({
-    start_date: null,
-    end_date: null,
-    vacation_type: "",
-    reason: ""
-  });
-  const [submitting, setSubmitting] = useState(false);
+// Vacation Types
+const VACATION_TYPES = {
+  URLAUB: { label: 'Urlaub', color: 'bg-blue-500', textColor: 'text-blue-700' },
+  KRANKHEIT: { label: 'Krankheit', color: 'bg-red-600', textColor: 'text-red-800' },
+  SONDERURLAUB: { label: 'Sonderurlaub', color: 'bg-green-500', textColor: 'text-green-700' }
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+// Toolbar Component (Word-style)
+const Toolbar = ({ 
+  onNewVacation, 
+  onNewEmployee,
+  onExport, 
+  onImport, 
+  onPrint, 
+  currentView, 
+  onViewChange,
+  searchTerm,
+  onSearchChange,
+  showFilters,
+  onToggleFilters,
+  employees,
+  settings
+}) => {
+  return (
+    <div className="bg-white border-b border-gray-200 p-3">
+      {/* Main Toolbar */}
+      <div className="flex items-center space-x-1 mb-2">
+        {/* File Group */}
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-3 mr-3">
+          <button
+            onClick={onNewVacation}
+            className="flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Neuer Urlaub
+          </button>
+          <button
+            onClick={onNewEmployee}
+            className="flex items-center px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+          >
+            <UserPlus className="w-4 h-4 mr-1" />
+            Mitarbeiter
+          </button>
+          <button
+            onClick={onExport}
+            className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            title="Exportieren"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onImport}
+            className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            title="Importieren"
+          >
+            <Upload className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onPrint}
+            className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            title="Drucken"
+          >
+            <Printer className="w-4 h-4" />
+          </button>
+        </div>
 
-    try {
-      const requestData = {
-        user_id: currentUser.id,
-        start_date: formData.start_date.toISOString().split('T')[0],
-        end_date: formData.end_date.toISOString().split('T')[0],
-        vacation_type: formData.vacation_type,
-        reason: formData.reason
-      };
+        {/* View Group */}
+        <div className="flex items-center space-x-1 border-r border-gray-300 pr-3 mr-3">
+          <button
+            onClick={() => onViewChange('month')}
+            className={`flex items-center px-3 py-2 text-sm rounded transition-colors ${
+              currentView === 'month' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Calendar className="w-4 h-4 mr-1" />
+            Monat
+          </button>
+          <button
+            onClick={() => onViewChange('year')}
+            className={`flex items-center px-3 py-2 text-sm rounded transition-colors ${
+              currentView === 'year' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Calendar className="w-4 h-4 mr-1" />
+            Jahr
+          </button>
+          <button
+            onClick={() => onViewChange('team')}
+            className={`flex items-center px-3 py-2 text-sm rounded transition-colors ${
+              currentView === 'team' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Users className="w-4 h-4 mr-1" />
+            Team
+          </button>
+        </div>
 
-      await axios.post(`${API}/vacation-requests`, requestData);
-      alert("Urlaubsantrag erfolgreich eingereicht!");
-      setFormData({ start_date: null, end_date: null, vacation_type: "", reason: "" });
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      alert("Fehler beim Einreichen des Antrags: " + (error.response?.data?.detail || error.message));
-    } finally {
-      setSubmitting(false);
+        {/* Search & Filter Group */}
+        <div className="flex items-center space-x-2 flex-1">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Mitarbeiter suchen..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-8 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={onToggleFilters}
+            className={`flex items-center px-3 py-2 text-sm rounded transition-colors ${
+              showFilters ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <Filter className="w-4 h-4 mr-1" />
+            Filter
+          </button>
+        </div>
+
+        {/* Settings */}
+        <button className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+          <Settings className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Breadcrumb/Status Bar */}
+      <div className="text-xs text-gray-500 flex items-center justify-between">
+        <span>Urlaubsplaner • {format(new Date(), 'MMMM yyyy', { locale: de })}</span>
+        <span>{employees.length} Mitarbeiter • Max. {settings.max_concurrent_calculated} gleichzeitig ({settings.max_concurrent_percentage}%)</span>
+      </div>
+    </div>
+  );
+};
+
+// Calendar Navigation
+const CalendarNavigation = ({ currentDate, onPrevious, onNext, view }) => {
+  const getTitle = () => {
+    switch (view) {
+      case 'month':
+        return format(currentDate, 'MMMM yyyy', { locale: de });
+      case 'year':
+        return format(currentDate, 'yyyy', { locale: de });
+      default:
+        return format(currentDate, 'MMMM yyyy', { locale: de });
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Neuer Urlaubsantrag</CardTitle>
-        <CardDescription>Reichen Sie Ihren Urlaubsantrag ein</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="start_date">Startdatum</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.start_date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.start_date ? format(formData.start_date, "dd.MM.yyyy", { locale: de }) : "Datum wählen"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.start_date}
-                    onSelect={(date) => setFormData({ ...formData, start_date: date })}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <Label htmlFor="end_date">Enddatum</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.end_date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.end_date ? format(formData.end_date, "dd.MM.yyyy", { locale: de }) : "Datum wählen"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.end_date}
-                    onSelect={(date) => setFormData({ ...formData, end_date: date })}
-                    disabled={(date) => date < formData.start_date || date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="vacation_type">Art des Urlaubs</Label>
-            <Select value={formData.vacation_type} onValueChange={(value) => setFormData({ ...formData, vacation_type: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Wählen Sie die Art des Urlaubs" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="urlaub">Urlaub</SelectItem>
-                <SelectItem value="krankheit">Krankheit</SelectItem>
-                <SelectItem value="fortbildung">Fortbildung</SelectItem>
-                <SelectItem value="sonderurlaub">Sonderurlaub</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="reason">Grund/Bemerkung</Label>
-            <Textarea
-              id="reason"
-              placeholder="Optionale Bemerkung..."
-              value={formData.reason}
-              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-            />
-          </div>
-
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={!formData.start_date || !formData.end_date || !formData.vacation_type || submitting}
-          >
-            {submitting ? "Wird eingereicht..." : "Antrag einreichen"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+      <button
+        onClick={onPrevious}
+        className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      <h2 className="text-xl font-semibold text-gray-900 capitalize">
+        {getTitle()}
+      </h2>
+      <button
+        onClick={onNext}
+        className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+    </div>
   );
 };
 
-// My Requests Component
-const MyRequests = ({ currentUser }) => {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Employee Dialog Component
+const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: 'employee',
+    skills: []
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchRequests();
-  }, [currentUser]);
+    if (editingEmployee) {
+      setFormData({
+        name: editingEmployee.name,
+        email: editingEmployee.email,
+        role: editingEmployee.role,
+        skills: editingEmployee.skills || []
+      });
+    } else {
+      setFormData({
+        name: '',
+        email: '',
+        role: 'employee',
+        skills: []
+      });
+    }
+    setError('');
+  }, [editingEmployee, isOpen]);
 
-  const fetchRequests = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      const response = await axios.get(`${API}/vacation-requests?user_id=${currentUser.id}`);
-      setRequests(response.data);
-    } catch (error) {
-      console.error("Error fetching requests:", error);
+      if (editingEmployee) {
+        await axios.put(`${API}/employees/${editingEmployee.id}`, formData);
+      } else {
+        await axios.post(`${API}/employees`, formData);
+      }
+      onSave();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Ein Fehler ist aufgetreten');
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteRequest = async (requestId) => {
-    if (window.confirm("Möchten Sie diesen Antrag wirklich löschen?")) {
-      try {
-        await axios.delete(`${API}/vacation-requests/${requestId}`);
-        fetchRequests();
-        alert("Antrag erfolgreich gelöscht!");
-      } catch (error) {
-        alert("Fehler beim Löschen: " + (error.response?.data?.detail || error.message));
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            {editingEmployee ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter'}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Max Mustermann"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              E-Mail
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="max.mustermann@firma.de"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Rolle
+            </label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="employee">Mitarbeiter</option>
+              <option value="admin">Administrator</option>
+              <option value="leiharbeiter">Leiharbeiter</option>
+            </select>
+          </div>
+
+          <SkillManager
+            skills={formData.skills}
+            onSkillsChange={(skills) => setFormData({ ...formData, skills })}
+          />
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Speichern...' : (editingEmployee ? 'Aktualisieren' : 'Erstellen')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Vacation Entry Dialog
+const VacationDialog = ({ isOpen, onClose, onSave, employees, editingEntry = null }) => {
+  const [formData, setFormData] = useState({
+    employee_id: '',
+    start_date: '',
+    end_date: '',
+    vacation_type: 'URLAUB',
+    notes: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editingEntry) {
+      setFormData({
+        employee_id: editingEntry.employee_id,
+        start_date: editingEntry.start_date,
+        end_date: editingEntry.end_date,
+        vacation_type: editingEntry.vacation_type,
+        notes: editingEntry.notes || ''
+      });
+    } else {
+      setFormData({
+        employee_id: '',
+        start_date: '',
+        end_date: '',
+        vacation_type: 'URLAUB',
+        notes: ''
+      });
+    }
+    setError('');
+  }, [editingEntry, isOpen]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (editingEntry) {
+        await axios.put(`${API}/vacation-entries/${editingEntry.id}`, formData);
+      } else {
+        await axios.post(`${API}/vacation-entries`, formData);
       }
+      onSave();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div className="text-center">Lade Anträge...</div>;
-  }
+  if (!isOpen) return null;
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Meine Anträge</h2>
-      {requests.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-gray-500">Keine Anträge vorhanden</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {requests.map((request) => (
-            <Card key={request.id}>
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-4">
-                      <span className="font-medium">
-                        {format(new Date(request.start_date), "dd.MM.yyyy", { locale: de })} - 
-                        {format(new Date(request.end_date), "dd.MM.yyyy", { locale: de })}
-                      </span>
-                      <Badge 
-                        variant={
-                          request.status === 'approved' ? 'default' : 
-                          request.status === 'rejected' ? 'destructive' : 'secondary'
-                        }
-                      >
-                        {request.status === 'approved' ? 'Genehmigt' : 
-                         request.status === 'rejected' ? 'Abgelehnt' : 'Ausstehend'}
-                      </Badge>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            {editingEntry ? 'Urlaub bearbeiten' : 'Neuer Urlaub'}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mitarbeiter
+            </label>
+            <select
+              value={formData.employee_id}
+              onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Mitarbeiter auswählen</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Von
+              </label>
+              <input
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bis
+              </label>
+              <input
+                type="date"
+                value={formData.end_date}
+                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Art
+            </label>
+            <select
+              value={formData.vacation_type}
+              onChange={(e) => setFormData({ ...formData, vacation_type: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {Object.entries(VACATION_TYPES).map(([key, type]) => (
+                <option key={key} value={key}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <SkillManager
+            skills={formData.skills}
+            onSkillsChange={(skills) => setFormData({ ...formData, skills })}
+          />
+
+          <div className="flex justify-between pt-4">
+            {editingEntry && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (window.confirm('Urlaubseintrag wirklich löschen?')) {
+                    try {
+                      await axios.delete(`${API}/vacation-entries/${editingEntry.id}`);
+                      onSave(); // Reload data
+                      onClose();
+                    } catch (err) {
+                      alert('Fehler beim Löschen des Urlaubseintrags');
+                    }
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 mr-1 inline" />
+                Löschen
+              </button>
+            )}
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Speichern...' : (editingEntry ? 'Aktualisieren' : 'Erstellen')}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Month Calendar View
+const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClick, onEntryClick }) => {
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  const getVacationsForDay = (day) => {
+    return vacationEntries.filter(entry => {
+      const entryStart = new Date(entry.start_date);
+      const entryEnd = new Date(entry.end_date);
+      return day >= entryStart && day <= entryEnd;
+    });
+  };
+
+  const getDayClasses = (day) => {
+    const isCurrentMonth = isSameMonth(day, currentDate);
+    const isCurrentDay = isToday(day);
+    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+    
+    let classes = "min-h-24 p-1 border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors ";
+    
+    if (!isCurrentMonth) classes += "bg-gray-50 text-gray-400 ";
+    if (isCurrentDay) classes += "bg-blue-50 border-blue-300 ";
+    if (isWeekend && isCurrentMonth) classes += "bg-gray-100 ";
+    
+    return classes;
+  };
+
+  return (
+    <div className="bg-white">
+      {/* Calendar Header */}
+      <div className="grid grid-cols-7 border-b border-gray-200">
+        {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
+          <div key={day} className="p-3 text-center text-sm font-medium text-gray-500 bg-gray-50">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Body */}
+      <div className="grid grid-cols-7">
+        {calendarDays.map((day) => {
+          const dayVacations = getVacationsForDay(day);
+          
+          return (
+            <div
+              key={day.toISOString()}
+              className={getDayClasses(day)}
+              onClick={() => onDateClick(day)}
+            >
+              <div className="flex justify-between items-start">
+                <span className="text-sm font-medium">
+                  {format(day, 'd')}
+                </span>
+                {dayVacations.length > 0 && (
+                  <span className="text-xs bg-blue-500 text-white rounded-full px-1 min-w-4 text-center">
+                    {dayVacations.length}
+                  </span>
+                )}
+              </div>
+              
+              <div className="mt-1 space-y-1">
+                {dayVacations.slice(0, 3).map((vacation) => {
+                  const vacationType = VACATION_TYPES[vacation.vacation_type];
+                  return (
+                    <div
+                      key={vacation.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEntryClick(vacation);
+                      }}
+                      className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 ${vacationType.color} text-white`}
+                      title={`${vacation.employee_name} - ${vacationType.label}`}
+                    >
+                      {vacation.employee_name}
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {request.vacation_type} • {request.days_requested} Tage
-                    </p>
-                    {request.reason && (
-                      <p className="text-sm text-gray-600">Grund: {request.reason}</p>
-                    )}
-                    {request.manager_comment && (
-                      <p className="text-sm text-blue-600">Manager-Kommentar: {request.manager_comment}</p>
-                    )}
+                  );
+                })}
+                {dayVacations.length > 3 && (
+                  <div className="text-xs text-gray-500">
+                    +{dayVacations.length - 3} weitere
                   </div>
-                  <div className="flex gap-2">
-                    {request.status === 'pending' && (
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => deleteRequest(request.id)}
-                      >
-                        Löschen
-                      </Button>
-                    )}
-                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Year Calendar View
+const YearCalendarView = ({ currentDate, vacationEntries, onMonthClick }) => {
+  const yearStart = startOfYear(currentDate);
+  const yearEnd = endOfYear(currentDate);
+  const yearMonths = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+  const getVacationsForMonth = (month) => {
+    const monthStart = startOfMonth(month);
+    const monthEnd = endOfMonth(month);
+    
+    return vacationEntries.filter(entry => {
+      const entryStart = new Date(entry.start_date);
+      const entryEnd = new Date(entry.end_date);
+      return (entryStart <= monthEnd && entryEnd >= monthStart);
+    });
+  };
+
+  const getMonthVacationStats = (month) => {
+    const monthVacations = getVacationsForMonth(month);
+    const uniqueEmployees = [...new Set(monthVacations.map(v => v.employee_id))];
+    
+    const typeStats = {
+      URLAUB: monthVacations.filter(v => v.vacation_type === 'URLAUB').length,
+      KRANKHEIT: monthVacations.filter(v => v.vacation_type === 'KRANKHEIT').length,
+      SONDERURLAUB: monthVacations.filter(v => v.vacation_type === 'SONDERURLAUB').length
+    };
+
+    return {
+      totalEntries: monthVacations.length,
+      uniqueEmployees: uniqueEmployees.length,
+      typeStats
+    };
+  };
+
+  return (
+    <div className="bg-white p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {yearMonths.map((month) => {
+          const stats = getMonthVacationStats(month);
+          
+          return (
+            <div
+              key={month.toISOString()}
+              onClick={() => onMonthClick(month)}
+              className="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="text-center mb-3">
+                <h3 className="text-lg font-semibold text-gray-900 capitalize">
+                  {format(month, 'MMMM', { locale: de })}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {format(month, 'yyyy')}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Urlaubseinträge:</span>
+                  <span className="font-medium">{stats.totalEntries}</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Betroffene Mitarbeiter:</span>
+                  <span className="font-medium">{stats.uniqueEmployees}</span>
+                </div>
+
+                {stats.totalEntries > 0 && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <div className="text-xs text-gray-500 mb-1">Aufschlüsselung:</div>
+                    <div className="space-y-1">
+                      {stats.typeStats.URLAUB > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
+                            <span className="text-xs">Urlaub</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.URLAUB}</span>
+                        </div>
+                      )}
+                      {stats.typeStats.KRANKHEIT > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
+                            <span className="text-xs">Krankheit</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.KRANKHEIT}</span>
+                        </div>
+                      )}
+                      {stats.typeStats.SONDERURLAUB > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
+                            <span className="text-xs">Sonderurlaub</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.SONDERURLAUB}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {stats.totalEntries === 0 && (
+                  <div className="text-center py-2">
+                    <span className="text-xs text-gray-400">Keine Einträge</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Skills Edit Dialog Component
+const SkillsEditDialog = ({ isOpen, onClose, employee, onSave }) => {
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (employee && isOpen) {
+      console.log('Loading skills for employee:', employee.name, 'Skills:', employee.skills);
+      setSkills(employee.skills || []);
+      setError('');
+    }
+  }, [employee, isOpen]);
+
+  const handleSave = async () => {
+    if (!employee) return;
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const updatedEmployee = {
+        name: employee.name,
+        email: employee.email || "",
+        role: employee.role,
+        skills: skills
+      };
+      
+      console.log('Saving skills for employee:', employee.name, 'Skills:', skills);
+      const response = await axios.put(`${API}/employees/${employee.id}`, updatedEmployee);
+      console.log('Skills save response:', response.data);
+      onSave();
+      onClose();
+    } catch (err) {
+      console.error('Skills save error:', err);
+      setError(err.response?.data?.detail || 'Fehler beim Speichern der Skills');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen || !employee) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-90vh overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            Skills bearbeiten - {employee.name}
+            {employee.role === 'admin' && (
+              <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                👑 Admin
+              </span>
+            )}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-4">
+              {error}
+            </div>
+          )}
+
+          <SkillManager
+            skills={skills}
+            onSkillsChange={setSkills}
+          />
+
+          <div className="flex justify-end space-x-2 pt-4 mt-6 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Speichern...' : 'Skills speichern'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Team Management View
+const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onDataReload, onEditSkills, sickDaysData }) => {
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [skillFilter, setSkillFilter] = useState('all');
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [viewMode, setViewMode] = useState('table');
+
+  // Get unique skills from all employees
+  const allSkills = [...new Set(
+    employees.flatMap(emp => (emp.skills || []).map(skill => skill.name))
+  )].sort();
+
+  // Filter and sort employees
+  const filteredEmployees = employees
+    .filter(emp => {
+      if (roleFilter !== 'all' && emp.role !== roleFilter) return false;
+      if (skillFilter !== 'all' && !(emp.skills || []).some(skill => skill.name === skillFilter)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // ALWAYS prioritize admins first, regardless of other sorting
+      if (a.role === 'admin' && b.role !== 'admin') return -1;
+      if (b.role === 'admin' && a.role !== 'admin') return 1;
+      
+      // Then apply secondary sorting
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'role':
+          // If both are admins or both are non-admins, sort by role
+          return a.role.localeCompare(b.role);
+        case 'email':
+          return (a.email || '').localeCompare(b.email || '');
+        case 'skills':
+          return (b.skills || []).length - (a.skills || []).length;
+        default:
+          return 0;
+      }
+    });
+
+  const handleSelectAll = (checked) => {
+    setSelectedEmployees(checked ? filteredEmployees.map(emp => emp.id) : []);
+  };
+
+  const handleSelectEmployee = (employeeId, checked) => {
+    if (checked) {
+      setSelectedEmployees([...selectedEmployees, employeeId]);
+    } else {
+      setSelectedEmployees(selectedEmployees.filter(id => id !== employeeId));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedEmployees.length === 0) return;
+    
+    const confirmed = window.confirm(
+      `${selectedEmployees.length} Mitarbeiter wirklich löschen? Alle Urlaubseinträge werden ebenfalls gelöscht.`
+    );
+    
+    if (confirmed) {
+      for (const employeeId of selectedEmployees) {
+        try {
+          await axios.delete(`${API}/employees/${employeeId}`);
+        } catch (err) {
+          console.error('Fehler beim Löschen:', err);
+        }
+      }
+      setSelectedEmployees([]);
+      // Trigger reload (would need to be passed from parent)
+      window.location.reload();
+    }
+  };
+
+  const scrollToTop = () => {
+    const scrollContainer = document.querySelector('.team-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
+  };
+
+
+
+  return (
+    <div className="bg-white p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Team-Verwaltung</h2>
+        <p className="text-gray-600">
+          Verwalten Sie Ihre Mitarbeiter und deren Informationen. 
+          <span className="font-medium text-green-600 ml-2">
+            ✓ Unbegrenzte Mitarbeiteranzahl
+          </span>
+        </p>
+        <div className="mt-2 text-sm text-gray-500">
+          Aktuell: {employees.length} Mitarbeiter • Gefiltert: {filteredEmployees.length} • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} (30%)
+          <span className="ml-3 text-purple-600 font-medium">👑 Admins werden automatisch zuerst angezeigt</span>
+        </div>
+      </div>
+
+      {/* Smart Filter Bar */}
+      <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Role Filter */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Rolle:</label>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Alle Rollen</option>
+              <option value="admin">Administrator</option>
+              <option value="employee">Mitarbeiter</option>
+              <option value="leiharbeiter">Leiharbeiter</option>
+            </select>
+          </div>
+
+          {/* Skill Filter */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Skill:</label>
+            <select
+              value={skillFilter}
+              onChange={(e) => setSkillFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Alle Skills</option>
+              {allSkills.map(skill => (
+                <option key={skill} value={skill}>{skill}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Sortieren:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="name">Name A-Z</option>
+              <option value="role">Rolle</option>
+              <option value="email">E-Mail</option>
+              <option value="skills">Anzahl Skills</option>
+            </select>
+          </div>
+
+          {/* View Mode */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Ansicht:</label>
+            <select
+              value={viewMode}
+              onChange={(e) => setViewMode(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="table">Tabelle</option>
+              <option value="cards">Karten</option>
+            </select>
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedEmployees.length > 0 && (
+            <div className="flex items-center space-x-2 ml-auto">
+              <span className="text-sm text-gray-600">
+                {selectedEmployees.length} ausgewählt
+              </span>
+              <button
+                onClick={handleBulkDelete}
+                className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 inline mr-1" />
+                Löschen
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Clear Filters */}
+        {(roleFilter !== 'all' || skillFilter !== 'all' || sortBy !== 'name') && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <button
+              onClick={() => {
+                setRoleFilter('all');
+                setSkillFilter('all');
+                setSortBy('name');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Alle Filter zurücksetzen
+            </button>
+          </div>
+        )}
+      </div>
+
+      {employees.length === 0 ? (
+        <div className="text-center py-12">
+          <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter vorhanden</h3>
+          <p className="text-gray-500 mb-6">Fügen Sie Ihren ersten Mitarbeiter hinzu, um zu beginnen.</p>
+        </div>
+      ) : filteredEmployees.length === 0 ? (
+        <div className="text-center py-12">
+          <Filter className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter gefunden</h3>
+          <p className="text-gray-500 mb-6">Passen Sie Ihre Filter an, um Mitarbeiter zu finden.</p>
+        </div>
+      ) : viewMode === 'cards' ? (
+        <div className="max-h-96 overflow-y-auto team-scroll-container smooth-scroll">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pr-2">
+            {filteredEmployees.map((employee) => (
+            <div
+              key={employee.id}
+              className={`bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
+                selectedEmployees.includes(employee.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedEmployees.includes(employee.id)}
+                    onChange={(e) => handleSelectEmployee(employee.id, e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">
+                      {employee.role === 'admin' && '👑 '}
+                      {employee.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">{employee.email}</p>
+                  </div>
+                  <button
+                    onClick={() => onEditSkills(employee)}
+                    className="text-blue-600 hover:text-blue-800 transition-colors mr-2"
+                    title="Skills bearbeiten"
+                  >
+                    <Star className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => onEditEmployee(employee)}
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onDeleteEmployee(employee)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="mb-3">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  employee.role === 'admin' 
+                    ? 'bg-purple-100 text-purple-800' 
+                    : employee.role === 'leiharbeiter'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {employee.role === 'admin' ? 'Administrator' : employee.role === 'leiharbeiter' ? 'Leiharbeiter' : 'Mitarbeiter'}
+                </span>
+              </div>
+
+              <div className="mb-3 space-y-1">
+                <p className="text-sm text-gray-600">{employee.vacation_days_total} Urlaubstage</p>
+                <p className="text-sm text-red-600">{sickDaysData[employee.id] || 0} Krankheitstage</p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
+                <div className="space-y-1">
+                  {(employee.skills || []).slice(0, 2).map((skill, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600">{skill.name}</span>
+                      <StarRating rating={skill.rating} readonly={true} />
+                    </div>
+                  ))}
+                  {(employee.skills || []).length > 2 && (
+                    <div className="text-xs text-gray-400">
+                      +{(employee.skills || []).length - 2} weitere Skills
+                    </div>
+                  )}
+                  {!(employee.skills || []).length && (
+                    <span className="text-xs text-gray-400">Keine Skills</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            ))}
+          </div>
+          
+          {/* Cards Scroll Indicator */}
+          {filteredEmployees.length > 6 && (
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                Scrollen für mehr Mitarbeiter
+                <ChevronRight className="w-3 h-3 ml-1 rotate-90" />
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="shadow ring-1 ring-black ring-opacity-5 md:rounded-lg overflow-hidden">
+          <div className="max-h-96 overflow-y-auto team-scroll-container smooth-scroll">
+            <table className="min-w-full divide-y divide-gray-300">
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                  <th className="px-6 py-3 text-left bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    E-Mail
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Rolle
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Urlaubstage
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Krankheitstage
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Skills
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-50">
+                    Aktionen
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+              {filteredEmployees.map((employee) => (
+                <tr key={employee.id} className={selectedEmployees.includes(employee.id) ? 'bg-blue-50' : ''}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedEmployees.includes(employee.id)}
+                      onChange={(e) => handleSelectEmployee(employee.id, e.target.checked)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <div className="text-sm font-medium text-gray-900">
+                        {employee.role === 'admin' && '👑 '}
+                        {employee.name}
+                      </div>
+                      <button
+                        onClick={() => onEditSkills(employee)}
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        title="Skills bearbeiten"
+                      >
+                        <Star className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{employee.email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      employee.role === 'admin' 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : employee.role === 'leiharbeiter'
+                        ? 'bg-orange-100 text-orange-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {employee.role === 'admin' ? 'Administrator' : employee.role === 'leiharbeiter' ? 'Leiharbeiter' : 'Mitarbeiter'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employee.vacation_days_total} Tage
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                    {sickDaysData[employee.id] || 0} Tage
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      {(employee.skills && employee.skills.length > 0) ? (
+                        <>
+                          {employee.skills.slice(0, 3).map((skill, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <span className="text-xs text-gray-600">{skill.name}</span>
+                              <StarRating rating={skill.rating} readonly={true} />
+                            </div>
+                          ))}
+                          {employee.skills.length > 3 && (
+                            <div className="text-xs text-gray-400">
+                              +{employee.skills.length - 3} weitere
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400">Keine Skills</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => onEditEmployee(employee)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onDeleteEmployee(employee)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+          
+          {/* Scroll Indicator & Controls */}
+          {filteredEmployees.length > 8 && (
+            <div className="bg-gray-50 px-6 py-2 border-t">
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>
+                  Zeige alle {filteredEmployees.length} Mitarbeiter (scrollbar rechts)
+                </span>
+                <button
+                  onClick={scrollToTop}
+                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Nach oben
+                  <ChevronRight className="w-3 h-3 ml-1 -rotate-90" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -391,151 +1395,293 @@ const MyRequests = ({ currentUser }) => {
 };
 
 // Main App Component
-const Home = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [currentUser, setCurrentUser] = useState(null);
-  const [users, setUsers] = useState([]);
+function App() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState('month');
+  const [employees, setEmployees] = useState([]);
+  const [vacationEntries, setVacationEntries] = useState([]);
+  const [showVacationDialog, setShowVacationDialog] = useState(false);
+  const [showEmployeeDialog, setShowEmployeeDialog] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [settings, setSettings] = useState({
+    max_concurrent_percentage: 30,
+    total_employees: 0,
+    max_concurrent_calculated: 1
+  });
+  const [skillsEditEmployee, setSkillsEditEmployee] = useState(null);
+  const [showSkillsDialog, setShowSkillsDialog] = useState(false);
+  const [sickDaysData, setSickDaysData] = useState({});
 
+  // Load initial data
   useEffect(() => {
-    fetchUsers();
+    loadData();
   }, []);
 
-  const fetchUsers = async () => {
+  const loadData = async () => {
     try {
-      const response = await axios.get(`${API}/users`);
-      setUsers(response.data);
-      if (response.data.length > 0) {
-        setCurrentUser(response.data[0]); // Set first user as default
+      setLoading(true);
+      const [employeesRes, vacationRes, settingsRes] = await Promise.all([
+        axios.get(`${API}/employees`),
+        axios.get(`${API}/vacation-entries`),
+        axios.get(`${API}/settings`)
+      ]);
+      setEmployees(employeesRes.data);
+      setVacationEntries(vacationRes.data);
+      setSettings(settingsRes.data);
+      setError('');
+    } catch (err) {
+      setError('Fehler beim Laden der Daten');
+      console.error('Loading error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    if (currentView === 'month') {
+      setCurrentDate(subMonths(currentDate, 1));
+    } else if (currentView === 'year') {
+      setCurrentDate(new Date(currentDate.getFullYear() - 1, currentDate.getMonth()));
+    }
+  };
+
+  const handleNext = () => {
+    if (currentView === 'month') {
+      setCurrentDate(addMonths(currentDate, 1));
+    } else if (currentView === 'year') {
+      setCurrentDate(new Date(currentDate.getFullYear() + 1, currentDate.getMonth()));
+    }
+  };
+
+  // Dialog handlers
+  const handleNewVacation = () => {
+    setEditingEntry(null);
+    setShowVacationDialog(true);
+  };
+
+  const handleNewEmployee = () => {
+    setEditingEmployee(null);
+    setShowEmployeeDialog(true);
+  };
+
+  const handleEditVacation = (entry) => {
+    setEditingEntry(entry);
+    setShowVacationDialog(true);
+  };
+
+  const handleEditEmployee = (employee) => {
+    setEditingEmployee(employee);
+    setShowEmployeeDialog(true);
+  };
+
+  const handleDeleteEmployee = async (employee) => {
+    if (window.confirm(`Mitarbeiter "${employee.name}" wirklich löschen? Alle Urlaubseinträge werden ebenfalls gelöscht.`)) {
+      try {
+        await axios.delete(`${API}/employees/${employee.id}`);
+        loadData();
+      } catch (err) {
+        alert('Fehler beim Löschen des Mitarbeiters');
+      }
+    }
+  };
+
+  const handleSaveVacation = () => {
+    loadData(); // Reload data after save
+  };
+
+  const handleSaveEmployee = () => {
+    loadData(); // Reload data after save
+  };
+
+  const handleSkillsSave = async () => {
+    try {
+      // Call parent's data reload function
+      if (onDataReload) {
+        await onDataReload();
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error('Error reloading data:', error);
+      // Fallback: reload the page
+      window.location.reload();
     }
   };
 
-  const createDefaultUser = async () => {
+  // Load sick days data for all employees
+  const loadSickDaysData = async () => {
     try {
-      const userData = {
-        name: "Max Mustermann",
-        email: "max.mustermann@company.com",
-        role: "employee",
-        department: "IT",
-        vacation_days_total: 30
-      };
+      if (employees.length === 0) return;
       
-      const response = await axios.post(`${API}/users`, userData);
-      setCurrentUser(response.data);
-      fetchUsers();
-      alert("Benutzer erfolgreich erstellt!");
-    } catch (error) {
-      alert("Fehler beim Erstellen des Benutzers: " + (error.response?.data?.detail || error.message));
+      const sickDaysPromises = employees.map(async (employee) => {
+        try {
+          const response = await axios.get(`${API}/analytics/employee-sick-days/${employee.id}?year=${new Date().getFullYear()}`);
+          return { [employee.id]: response.data.sick_days };
+        } catch (err) {
+          return { [employee.id]: 0 };
+        }
+      });
+      
+      const sickDaysResults = await Promise.all(sickDaysPromises);
+      const sickDaysMap = sickDaysResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      setSickDaysData(sickDaysMap);
+    } catch (err) {
+      console.error('Error loading sick days:', err);
     }
   };
 
-  if (!currentUser) {
+  // Load sick days when employees change
+  useEffect(() => {
+    if (employees.length > 0) {
+      loadSickDaysData();
+    }
+  }, [employees]);
+
+  // View handlers
+  const handleMonthClick = (month) => {
+    setCurrentDate(month);
+    setCurrentView('month');
+  };
+
+  // Placeholder handlers
+  const handleExport = () => {
+    alert('Export-Funktion wird implementiert...');
+  };
+
+  const handleImport = () => {
+    alert('Import-Funktion wird implementiert...');
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDateClick = (date) => {
+    console.log('Date clicked:', date);
+    // Could open a day view or quick add dialog
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">Urlaubsplaner</CardTitle>
-            <CardDescription className="text-center">
-              Willkommen beim Urlaubsplaner System
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {users.length === 0 ? (
-              <div className="text-center space-y-4">
-                <p>Noch keine Benutzer vorhanden.</p>
-                <Button onClick={createDefaultUser} className="w-full">
-                  Demo-Benutzer erstellen
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <Label>Benutzer auswählen:</Label>
-                <Select onValueChange={(userId) => {
-                  const user = users.find(u => u.id === userId);
-                  setCurrentUser(user);
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Benutzer wählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.department})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Lade Urlaubsplaner...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">Urlaubsplaner</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant={currentView === 'dashboard' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('dashboard')}
-              >
-                Dashboard
-              </Button>
-              <Button
-                variant={currentView === 'request' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('request')}
-              >
-                Antrag stellen
-              </Button>
-              <Button
-                variant={currentView === 'my-requests' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('my-requests')}
-              >
-                Meine Anträge
-              </Button>
-              <div className="text-sm text-gray-600">
-                {currentUser.name}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {currentView === 'dashboard' && <Dashboard currentUser={currentUser} />}
-          {currentView === 'request' && (
-            <VacationRequestForm 
-              currentUser={currentUser} 
-              onSuccess={() => setCurrentView('my-requests')}
-            />
-          )}
-          {currentView === 'my-requests' && <MyRequests currentUser={currentUser} />}
-        </div>
-      </main>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <div className="App">
+    <div className="min-h-screen bg-gray-100">
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <div className="flex flex-col h-screen">
+          {/* Toolbar */}
+          <Toolbar
+            onNewVacation={handleNewVacation}
+            onNewEmployee={handleNewEmployee}
+            onExport={handleExport}
+            onImport={handleImport}
+            onPrint={handlePrint}
+            currentView={currentView}
+            onViewChange={setCurrentView}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            showFilters={showFilters}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            employees={employees}
+            settings={settings}
+          />
+
+          {/* Calendar Navigation */}
+          <CalendarNavigation
+            currentDate={currentDate}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            view={currentView}
+          />
+
+          {/* Main Content */}
+          <div className="flex-1 overflow-hidden">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 mx-4">
+                <div className="flex">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mr-2" />
+                  <p className="text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {currentView === 'month' && (
+              <MonthCalendarView
+                currentDate={currentDate}
+                vacationEntries={vacationEntries}
+                employees={employees}
+                onDateClick={handleDateClick}
+                onEntryClick={handleEditVacation}
+              />
+            )}
+
+            {currentView === 'year' && (
+              <YearCalendarView
+                currentDate={currentDate}
+                vacationEntries={vacationEntries}
+                onMonthClick={handleMonthClick}
+              />
+            )}
+
+            {currentView === 'team' && (
+              <TeamManagementView
+                employees={employees}
+                onEditEmployee={handleEditEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
+                onDataReload={async () => {
+                  await loadData();
+                  if (employees.length > 0) {
+                    await loadSickDaysData();
+                  }
+                }}
+                onEditSkills={(employee) => {
+                  setSkillsEditEmployee(employee);
+                  setShowSkillsDialog(true);
+                }}
+                sickDaysData={sickDaysData}
+              />
+            )}
+          </div>
+
+          {/* Vacation Dialog */}
+          <VacationDialog
+            isOpen={showVacationDialog}
+            onClose={() => setShowVacationDialog(false)}
+            onSave={handleSaveVacation}
+            employees={employees}
+            editingEntry={editingEntry}
+          />
+
+          {/* Employee Dialog */}
+          <EmployeeDialog
+            isOpen={showEmployeeDialog}
+            onClose={() => setShowEmployeeDialog(false)}
+            onSave={handleSaveEmployee}
+            editingEmployee={editingEmployee}
+          />
+
+          {/* Skills Edit Dialog */}
+          <SkillsEditDialog
+            isOpen={showSkillsDialog}
+            onClose={() => {
+              setShowSkillsDialog(false);
+              setSkillsEditEmployee(null);
+            }}
+            employee={skillsEditEmployee}
+            onSave={handleSkillsSave}
+          />
+        </div>
       </BrowserRouter>
     </div>
   );
