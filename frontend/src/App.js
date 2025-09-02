@@ -1328,18 +1328,21 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onDat
                   </td>
                   <td className="px-6 py-4">
                     <div className="space-y-1">
-                      {(employee.skills || []).slice(0, 3).map((skill, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-600">{skill.name}</span>
-                          <StarRating rating={skill.rating} readonly={true} />
-                        </div>
-                      ))}
-                      {(employee.skills || []).length > 3 && (
-                        <div className="text-xs text-gray-400">
-                          +{(employee.skills || []).length - 3} weitere
-                        </div>
-                      )}
-                      {!(employee.skills || []).length && (
+                      {(employee.skills && employee.skills.length > 0) ? (
+                        <>
+                          {employee.skills.slice(0, 3).map((skill, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <span className="text-xs text-gray-600">{skill.name}</span>
+                              <StarRating rating={skill.rating} readonly={true} />
+                            </div>
+                          ))}
+                          {employee.skills.length > 3 && (
+                            <div className="text-xs text-gray-400">
+                              +{employee.skills.length - 3} weitere
+                            </div>
+                          )}
+                        </>
+                      ) : (
                         <span className="text-xs text-gray-400">Keine Skills</span>
                       )}
                     </div>
