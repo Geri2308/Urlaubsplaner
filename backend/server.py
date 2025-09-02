@@ -75,8 +75,8 @@ class VacationEntryCreate(BaseModel):
     notes: Optional[str] = ""
 
 class CompanySettings(BaseModel):
-    max_concurrent_percentage: int = 30  # 30% = 6 out of 20 people
-    total_employees: int = 20
+    max_concurrent_percentage: int = 30  # 30% of total employees
+    max_concurrent_fixed: Optional[int] = None  # Fixed number instead of percentage
 
 # Helper Functions
 def calculate_business_days(start_date: date, end_date: date) -> int:
