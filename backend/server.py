@@ -37,12 +37,17 @@ class UserRole(str, Enum):
     LEIHARBEITER = "leiharbeiter"
 
 # Data Models
+class Skill(BaseModel):
+    name: str
+    rating: int = Field(ge=1, le=5)  # 1-5 stars
+
 class Employee(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     email: Optional[str] = ""
     role: UserRole = UserRole.EMPLOYEE
     vacation_days_total: int = 25
+    skills: List[Skill] = Field(default_factory=list)
     created_date: datetime = Field(default_factory=datetime.utcnow)
 
 class EmployeeCreate(BaseModel):
