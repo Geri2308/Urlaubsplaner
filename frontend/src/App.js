@@ -945,8 +945,6 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEdi
   const [skillFilter, setSkillFilter] = useState('all');
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [viewMode, setViewMode] = useState('table');
-  const [skillsEditEmployee, setSkillsEditEmployee] = useState(null);
-  const [showSkillsDialog, setShowSkillsDialog] = useState(false);
 
   // Get unique skills from all employees
   const allSkills = [...new Set(
