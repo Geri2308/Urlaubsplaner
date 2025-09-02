@@ -70,13 +70,6 @@ const Toolbar = ({
             Mitarbeiter
           </button>
           <button
-            onClick={() => onNewEmployee('leiharbeiter')}
-            className="flex items-center px-3 py-2 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
-          >
-            <UserPlus className="w-4 h-4 mr-1" />
-            Leiharbeiter
-          </button>
-          <button
             onClick={onExport}
             className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors"
             title="Exportieren"
