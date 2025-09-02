@@ -137,8 +137,12 @@ const SkillManager = ({ skills = [], onSkillsChange }) => {
         />
         <button
           type="button"
-          onClick={addSkill}
-          className="text-green-600 hover:text-green-800"
+          onClick={() => {
+            console.log('Plus button clicked!');
+            addSkill();
+          }}
+          className="text-green-600 hover:text-green-800 p-1 hover:bg-green-50 rounded"
+          title="Fähigkeit hinzufügen"
         >
           <Plus className="w-4 h-4" />
         </button>
