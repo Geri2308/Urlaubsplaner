@@ -58,9 +58,12 @@ const StarRating = ({ rating, onRatingChange, readonly = false }) => {
 };
 
 // Skill Management Component
-const SkillManager = ({ skills, onSkillsChange }) => {
+const SkillManager = ({ skills = [], onSkillsChange }) => {
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillRating, setNewSkillRating] = useState(3);
+
+  // Ensure skills is always an array
+  const safeSkills = Array.isArray(skills) ? skills : [];
 
   const addSkill = () => {
     if (newSkillName.trim()) {
@@ -68,19 +71,19 @@ const SkillManager = ({ skills, onSkillsChange }) => {
         name: newSkillName.trim(),
         rating: newSkillRating
       };
-      onSkillsChange([...skills, newSkill]);
+      onSkillsChange([...safeSkills, newSkill]);
       setNewSkillName('');
       setNewSkillRating(3);
     }
   };
 
   const removeSkill = (index) => {
-    const updatedSkills = skills.filter((_, i) => i !== index);
+    const updatedSkills = safeSkills.filter((_, i) => i !== index);
     onSkillsChange(updatedSkills);
   };
 
   const updateSkillRating = (index, rating) => {
-    const updatedSkills = [...skills];
+    const updatedSkills = [...safeSkills];
     updatedSkills[index].rating = rating;
     onSkillsChange(updatedSkills);
   };
