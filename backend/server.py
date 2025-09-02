@@ -46,7 +46,7 @@ class Employee(BaseModel):
 
 class EmployeeCreate(BaseModel):
     name: str
-    email: str
+    email: Optional[str] = ""
     role: UserRole = UserRole.EMPLOYEE
 
 class VacationEntry(BaseModel):
