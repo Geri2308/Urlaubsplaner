@@ -223,7 +223,7 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null, defau
       setFormData({
         name: '',
         email: '',
-        role: 'employee'
+        role: defaultRole
       });
     }
     setError('');
