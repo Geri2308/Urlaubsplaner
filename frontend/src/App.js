@@ -913,6 +913,13 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
     }
   };
 
+  const scrollToTop = () => {
+    const scrollContainer = document.querySelector('.team-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
+  };
+
   return (
     <div className="bg-white p-6">
       <div className="mb-6">
