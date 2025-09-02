@@ -31,7 +31,7 @@ const API = `${BACKEND_URL}/api`;
 // Vacation Types
 const VACATION_TYPES = {
   URLAUB: { label: 'Urlaub', color: 'bg-blue-500', textColor: 'text-blue-700' },
-  KRANKHEIT: { label: 'Krankheit', color: 'bg-red-500', textColor: 'text-red-700' },
+  KRANKHEIT: { label: 'Krankheit', color: 'bg-red-600', textColor: 'text-red-800' },
   SONDERURLAUB: { label: 'Sonderurlaub', color: 'bg-green-500', textColor: 'text-green-700' }
 };
 
