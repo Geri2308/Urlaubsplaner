@@ -27,9 +27,9 @@ api_router = APIRouter(prefix="/api")
 
 # Enums
 class VacationType(str, Enum):
-    URLAUB = "Urlaub"
-    KRANKHEIT = "Krankheit"
-    SONDERURLAUB = "Sonderurlaub"
+    URLAUB = "URLAUB"
+    KRANKHEIT = "KRANKHEIT"
+    SONDERURLAUB = "SONDERURLAUB"
 
 class UserRole(str, Enum):
     ADMIN = "admin"
