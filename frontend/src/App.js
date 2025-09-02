@@ -420,6 +420,11 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
             </select>
           </div>
 
+          <SkillManager
+            skills={formData.skills}
+            onSkillsChange={(skills) => setFormData({ ...formData, skills })}
+          />
+
           <div className="flex justify-end space-x-2 pt-4">
             <button
               type="button"
