@@ -1037,6 +1037,7 @@ function App() {
             onClose={() => setShowEmployeeDialog(false)}
             onSave={handleSaveEmployee}
             editingEmployee={editingEmployee}
+            defaultRole={defaultRole}
           />
         </div>
       </BrowserRouter>
