@@ -156,7 +156,9 @@ const Toolbar = ({
   searchTerm,
   onSearchChange,
   showFilters,
-  onToggleFilters
+  onToggleFilters,
+  employees,
+  settings
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 p-3">
