@@ -849,7 +849,15 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
     <div className="bg-white p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Team-Verwaltung</h2>
-        <p className="text-gray-600">Verwalten Sie Ihre Mitarbeiter und deren Informationen.</p>
+        <p className="text-gray-600">
+          Verwalten Sie Ihre Mitarbeiter und deren Informationen. 
+          <span className="font-medium text-green-600 ml-2">
+            ✓ Unbegrenzte Mitarbeiteranzahl
+          </span>
+        </p>
+        <div className="mt-2 text-sm text-gray-500">
+          Aktuell: {employees.length} Mitarbeiter • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} ({30}%)
+        </div>
       </div>
 
       {employees.length === 0 ? (
