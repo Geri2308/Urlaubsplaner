@@ -432,10 +432,18 @@ async def get_team_overview(start_date: date, end_date: date):
         "vacation_entries": [VacationEntry(**entry) for entry in vacation_entries]
     }
 
-@api_router.get("/settings", response_model=CompanySettings)
+@api_router.get("/settings")
 async def get_company_settings():
-    """Get company settings"""
-    return CompanySettings()
+    """Get company settings with current employee count"""
+    total_employees = await db.employees.count_documents({})
+    settings = CompanySettings()
+    
+    return {
+        "max_concurrent_percentage": settings.max_concurrent_percentage,
+        "max_concurrent_fixed": settings.max_concurrent_fixed,
+        "total_employees": total_employees,
+        "max_concurrent_calculated": settings.max_concurrent_fixed or max(1, int((settings.max_concurrent_percentage / 100) * total_employees))
+    }
 
 # Health check
 @api_router.get("/health")
