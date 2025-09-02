@@ -886,8 +886,9 @@ function App() {
     setShowVacationDialog(true);
   };
 
-  const handleNewEmployee = () => {
+  const handleNewEmployee = (defaultRole = 'employee') => {
     setEditingEmployee(null);
+    setDefaultRole(defaultRole);
     setShowEmployeeDialog(true);
   };
 
