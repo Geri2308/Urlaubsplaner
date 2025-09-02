@@ -102,7 +102,7 @@ async def get_employee_by_id(employee_id: str) -> Optional[Employee]:
     return None
 
 async def check_concurrent_vacations(start_date: date, end_date: date, exclude_entry_id: Optional[str] = None) -> dict:
-    """Check if adding this vacation would exceed the 30% concurrent limit"""
+    """Check if adding this vacation would exceed the concurrent limit"""
     from datetime import timedelta
     
     # Convert dates to ISO format for MongoDB query
@@ -120,6 +120,9 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
         overlap_query["id"] = {"$ne": exclude_entry_id}
     
     overlapping_vacations = await db.vacation_entries.find(overlap_query).to_list(1000)
+    
+    # Get total number of employees
+    total_employees = await db.employees.count_documents({})
     
     # Check each day in the range
     current_date = start_date
@@ -154,14 +157,24 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
         current_date += timedelta(days=1)
     
     settings = CompanySettings()
-    max_allowed = int((settings.max_concurrent_percentage / 100) * settings.total_employees)
+    
+    # Calculate max allowed based on settings
+    if settings.max_concurrent_fixed:
+        max_allowed = settings.max_concurrent_fixed
+    elif total_employees > 0:
+        max_allowed = max(1, int((settings.max_concurrent_percentage / 100) * total_employees))
+    else:
+        max_allowed = 1  # Fallback for empty company
+    
+    percentage = round((max_concurrent_count / max(total_employees, 1)) * 100, 1) if total_employees > 0 else 0
     
     return {
         "is_valid": max_concurrent_count <= max_allowed,
         "max_concurrent_count": max_concurrent_count,
         "max_allowed": max_allowed,
         "max_concurrent_day": max_concurrent_day,
-        "percentage": round((max_concurrent_count / settings.total_employees) * 100, 1)
+        "percentage": percentage,
+        "total_employees": total_employees
     }
 
 # API Endpoints
