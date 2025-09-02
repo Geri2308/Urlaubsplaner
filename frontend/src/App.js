@@ -845,6 +845,99 @@ const YearCalendarView = ({ currentDate, vacationEntries, onMonthClick }) => {
   );
 };
 
+// Skills Edit Dialog Component
+const SkillsEditDialog = ({ isOpen, onClose, employee, onSave }) => {
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (employee && isOpen) {
+      setSkills(employee.skills || []);
+      setError('');
+    }
+  }, [employee, isOpen]);
+
+  const handleSave = async () => {
+    if (!employee) return;
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const updatedEmployee = {
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+        skills: skills
+      };
+      
+      await axios.put(`${API}/employees/${employee.id}`, updatedEmployee);
+      onSave();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Fehler beim Speichern der Skills');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen || !employee) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-90vh overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            Skills bearbeiten - {employee.name}
+            {employee.role === 'admin' && (
+              <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                👑 Admin
+              </span>
+            )}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-4">
+              {error}
+            </div>
+          )}
+
+          <SkillManager
+            skills={skills}
+            onSkillsChange={setSkills}
+          />
+
+          <div className="flex justify-end space-x-2 pt-4 mt-6 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Speichern...' : 'Skills speichern'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Team Management View
 const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => {
   const [roleFilter, setRoleFilter] = useState('all');
@@ -852,6 +945,8 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
   const [skillFilter, setSkillFilter] = useState('all');
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [viewMode, setViewMode] = useState('table');
+  const [skillsEditEmployee, setSkillsEditEmployee] = useState(null);
+  const [showSkillsDialog, setShowSkillsDialog] = useState(false);
 
   // Get unique skills from all employees
   const allSkills = [...new Set(
