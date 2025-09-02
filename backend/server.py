@@ -285,10 +285,11 @@ async def get_user_dashboard(user_id: str):
     }).sort("created_at", -1).limit(5).to_list(5)
     
     # Get upcoming vacations
+    today_str = datetime.now().date().isoformat()
     upcoming_vacations_cursor = db.vacation_requests.find({
         "user_id": user_id,
         "status": VacationStatus.APPROVED,
-        "start_date": {"$gte": datetime.now().date().isoformat()}
+        "start_date": {"$gte": today_str}
     }).sort("start_date", 1).limit(10)
     
     upcoming_vacations = await upcoming_vacations_cursor.to_list(10)
