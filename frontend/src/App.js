@@ -1624,6 +1624,12 @@ function App() {
                 employees={employees}
                 onEditEmployee={handleEditEmployee}
                 onDeleteEmployee={handleDeleteEmployee}
+                onDataReload={async () => {
+                  await loadData();
+                  if (employees.length > 0) {
+                    await loadSickDaysData();
+                  }
+                }}
                 onEditSkills={(employee) => {
                   setSkillsEditEmployee(employee);
                   setShowSkillsDialog(true);
