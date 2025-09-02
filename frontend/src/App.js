@@ -196,11 +196,11 @@ const CalendarNavigation = ({ currentDate, onPrevious, onNext, view }) => {
 };
 
 // Employee Dialog Component
-const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null, defaultRole = 'employee' }) => {
+const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: defaultRole
+    role: 'employee'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
