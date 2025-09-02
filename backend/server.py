@@ -89,13 +89,16 @@ class VacationRequestUpdate(BaseModel):
     manager_comment: Optional[str] = None
 
 # Helper Functions
-def calculate_business_days(start_date: date, end_date: date) -> int:
+def calculate_business_days(start_date: str, end_date: str) -> int:
     """Calculate business days between two dates"""
-    from datetime import timedelta
+    from datetime import timedelta, datetime
+    
+    start = datetime.fromisoformat(start_date).date()
+    end = datetime.fromisoformat(end_date).date()
     
     days = 0
-    current = start_date
-    while current <= end_date:
+    current = start
+    while current <= end:
         if current.weekday() < 5:  # Monday = 0, Sunday = 6
             days += 1
         current += timedelta(days=1)
