@@ -876,6 +876,9 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
                   Urlaubstage
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Skills
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Aktionen
                 </th>
               </tr>
