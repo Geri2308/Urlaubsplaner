@@ -866,10 +866,16 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
       return true;
     })
     .sort((a, b) => {
+      // ALWAYS prioritize admins first, regardless of other sorting
+      if (a.role === 'admin' && b.role !== 'admin') return -1;
+      if (b.role === 'admin' && a.role !== 'admin') return 1;
+      
+      // Then apply secondary sorting
       switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
         case 'role':
+          // If both are admins or both are non-admins, sort by role
           return a.role.localeCompare(b.role);
         case 'email':
           return (a.email || '').localeCompare(b.email || '');
