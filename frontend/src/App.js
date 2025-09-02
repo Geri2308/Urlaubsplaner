@@ -264,7 +264,7 @@ const Toolbar = ({
       {/* Breadcrumb/Status Bar */}
       <div className="text-xs text-gray-500 flex items-center justify-between">
         <span>Urlaubsplaner • {format(new Date(), 'MMMM yyyy', { locale: de })}</span>
-        <span>{employees.length} Mitarbeiter • Max. {Math.max(1, Math.floor(employees.length * 0.3))} gleichzeitig (30%)</span>
+        <span>{employees.length} Mitarbeiter • Max. {settings.max_concurrent_calculated} gleichzeitig ({settings.max_concurrent_percentage}%)</span>
       </div>
     </div>
   );
