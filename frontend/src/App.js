@@ -1616,6 +1616,17 @@ function App() {
             onSave={handleSaveEmployee}
             editingEmployee={editingEmployee}
           />
+
+          {/* Skills Edit Dialog */}
+          <SkillsEditDialog
+            isOpen={showSkillsDialog}
+            onClose={() => {
+              setShowSkillsDialog(false);
+              setSkillsEditEmployee(null);
+            }}
+            employee={skillsEditEmployee}
+            onSave={handleSkillsSave}
+          />
         </div>
       </BrowserRouter>
     </div>
