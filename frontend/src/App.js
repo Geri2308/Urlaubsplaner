@@ -1409,6 +1409,8 @@ function App() {
     total_employees: 0,
     max_concurrent_calculated: 1
   });
+  const [skillsEditEmployee, setSkillsEditEmployee] = useState(null);
+  const [showSkillsDialog, setShowSkillsDialog] = useState(false);
 
   // Load initial data
   useEffect(() => {
