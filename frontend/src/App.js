@@ -1323,7 +1323,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onDat
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {employee.vacation_days_total} Tage
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
                     {sickDaysData[employee.id] || 0} Tage
                   </td>
                   <td className="px-6 py-4">
