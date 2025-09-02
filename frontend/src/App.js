@@ -1233,17 +1233,20 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
           </table>
           </div>
           
-          {/* Scroll Indicator */}
+          {/* Scroll Indicator & Controls */}
           {filteredEmployees.length > 8 && (
             <div className="bg-gray-50 px-6 py-2 border-t">
               <div className="flex justify-between items-center text-xs text-gray-500">
                 <span>
-                  Zeige {Math.min(8, filteredEmployees.length)} von {filteredEmployees.length} Mitarbeitern
+                  Zeige alle {filteredEmployees.length} Mitarbeiter (scrollbar rechts)
                 </span>
-                <span className="flex items-center">
-                  Scrollen für mehr
-                  <ChevronRight className="w-3 h-3 ml-1 rotate-90" />
-                </span>
+                <button
+                  onClick={scrollToTop}
+                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Nach oben
+                  <ChevronRight className="w-3 h-3 ml-1 -rotate-90" />
+                </button>
               </div>
             </div>
           )}
