@@ -39,7 +39,7 @@ const Dashboard = ({ currentUser }) => {
     }
   };
 
-  if (loading) {
+  if (loading || !dashboardData) {
     return <div className="flex justify-center items-center h-screen">
       <div className="text-lg">Lade Dashboard...</div>
     </div>;
