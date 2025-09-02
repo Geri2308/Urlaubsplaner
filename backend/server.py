@@ -123,8 +123,17 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
         if current_date.weekday() < 5:  # Only check business days
             daily_count = 0
             for vacation in overlapping_vacations:
-                vacation_start = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
-                vacation_end = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+                # Handle both string and date objects for compatibility
+                if isinstance(vacation["start_date"], str):
+                    vacation_start = datetime.strptime(vacation["start_date"], "%Y-%m-%d").date()
+                else:
+                    vacation_start = vacation["start_date"]
+                    
+                if isinstance(vacation["end_date"], str):
+                    vacation_end = datetime.strptime(vacation["end_date"], "%Y-%m-%d").date()
+                else:
+                    vacation_end = vacation["end_date"]
+                    
                 if vacation_start <= current_date <= vacation_end:
                     daily_count += 1
             
