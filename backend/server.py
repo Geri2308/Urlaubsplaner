@@ -323,16 +323,25 @@ async def update_vacation_entry(entry_id: str, vacation_data: VacationEntryCreat
                 detail=f"Too many concurrent vacations. Maximum {concurrent_check['max_allowed']} people can be on vacation simultaneously."
             )
     
-    # Update vacation entry
+    # Update vacation entry - convert dates to strings for MongoDB  
+    vacation_dict = vacation_data.dict()
+    vacation_dict['start_date'] = vacation_dict['start_date'].isoformat()
+    vacation_dict['end_date'] = vacation_dict['end_date'].isoformat()
+    
     updated_entry = VacationEntry(
         id=entry_id,
-        **vacation_data.dict(),
+        **vacation_dict,
         employee_name=employee.name,
         days_count=days_count,
         created_date=existing_entry.created_date
     )
     
-    await db.vacation_entries.replace_one({"id": entry_id}, updated_entry.dict())
+    # Convert for MongoDB storage
+    entry_dict = updated_entry.dict()
+    entry_dict['start_date'] = vacation_dict['start_date']  # Keep as string
+    entry_dict['end_date'] = vacation_dict['end_date']      # Keep as string
+    
+    await db.vacation_entries.replace_one({"id": entry_id}, entry_dict)
     return updated_entry
 
 @api_router.delete("/vacation-entries/{entry_id}")
