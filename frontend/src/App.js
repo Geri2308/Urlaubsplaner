@@ -1205,8 +1205,9 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEdi
                 </span>
               </div>
 
-              <div className="mb-3">
+              <div className="mb-3 space-y-1">
                 <p className="text-sm text-gray-600">{employee.vacation_days_total} Urlaubstage</p>
+                <p className="text-sm text-red-600">{sickDaysData[employee.id] || 0} Krankheitstage</p>
               </div>
 
               <div>
