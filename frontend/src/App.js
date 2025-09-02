@@ -66,14 +66,21 @@ const SkillManager = ({ skills = [], onSkillsChange }) => {
   const safeSkills = Array.isArray(skills) ? skills : [];
 
   const addSkill = () => {
+    console.log('addSkill called, newSkillName:', newSkillName);
     if (newSkillName.trim()) {
       const newSkill = {
         name: newSkillName.trim(),
         rating: newSkillRating
       };
-      onSkillsChange([...safeSkills, newSkill]);
+      console.log('Adding new skill:', newSkill);
+      console.log('Current skills:', safeSkills);
+      const updatedSkills = [...safeSkills, newSkill];
+      console.log('Updated skills:', updatedSkills);
+      onSkillsChange(updatedSkills);
       setNewSkillName('');
       setNewSkillRating(3);
+    } else {
+      console.log('Skill name is empty');
     }
   };
 
