@@ -1021,6 +1021,11 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
     }
   };
 
+  const handleSkillsSave = () => {
+    // Reload data after skills update
+    window.location.reload();
+  };
+
   return (
     <div className="bg-white p-6">
       <div className="mb-6">
