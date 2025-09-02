@@ -1029,6 +1029,88 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
           <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter vorhanden</h3>
           <p className="text-gray-500 mb-6">Fügen Sie Ihren ersten Mitarbeiter hinzu, um zu beginnen.</p>
         </div>
+      ) : filteredEmployees.length === 0 ? (
+        <div className="text-center py-12">
+          <Filter className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter gefunden</h3>
+          <p className="text-gray-500 mb-6">Passen Sie Ihre Filter an, um Mitarbeiter zu finden.</p>
+        </div>
+      ) : viewMode === 'cards' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEmployees.map((employee) => (
+            <div
+              key={employee.id}
+              className={`bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
+                selectedEmployees.includes(employee.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedEmployees.includes(employee.id)}
+                    onChange={(e) => handleSelectEmployee(employee.id, e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div>
+                    <h3 className="font-medium text-gray-900">{employee.name}</h3>
+                    <p className="text-sm text-gray-500">{employee.email}</p>
+                  </div>
+                </div>
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => onEditEmployee(employee)}
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onDeleteEmployee(employee)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="mb-3">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  employee.role === 'admin' 
+                    ? 'bg-purple-100 text-purple-800' 
+                    : employee.role === 'leiharbeiter'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {employee.role === 'admin' ? 'Administrator' : employee.role === 'leiharbeiter' ? 'Leiharbeiter' : 'Mitarbeiter'}
+                </span>
+              </div>
+
+              <div className="mb-3">
+                <p className="text-sm text-gray-600">{employee.vacation_days_total} Urlaubstage</p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
+                <div className="space-y-1">
+                  {(employee.skills || []).slice(0, 2).map((skill, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600">{skill.name}</span>
+                      <StarRating rating={skill.rating} readonly={true} />
+                    </div>
+                  ))}
+                  {(employee.skills || []).length > 2 && (
+                    <div className="text-xs text-gray-400">
+                      +{(employee.skills || []).length - 2} weitere Skills
+                    </div>
+                  )}
+                  {!(employee.skills || []).length && (
+                    <span className="text-xs text-gray-400">Keine Skills</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
           <table className="min-w-full divide-y divide-gray-300">
