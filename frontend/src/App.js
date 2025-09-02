@@ -1622,6 +1622,7 @@ function App() {
                   setSkillsEditEmployee(employee);
                   setShowSkillsDialog(true);
                 }}
+                sickDaysData={sickDaysData}
               />
             )}
           </div>
