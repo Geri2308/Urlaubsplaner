@@ -853,6 +853,7 @@ const SkillsEditDialog = ({ isOpen, onClose, employee, onSave }) => {
 
   useEffect(() => {
     if (employee && isOpen) {
+      console.log('Loading skills for employee:', employee.name, 'Skills:', employee.skills);
       setSkills(employee.skills || []);
       setError('');
     }
