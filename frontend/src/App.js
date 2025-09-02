@@ -67,19 +67,19 @@ const Dashboard = ({ currentUser }) => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{vacation_balance.total_days}</div>
+              <div className="text-2xl font-bold text-blue-600">{vacation_balance?.total_days || 0}</div>
               <div className="text-sm text-gray-600">Gesamt</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-500">{vacation_balance.used_days}</div>
+              <div className="text-2xl font-bold text-red-500">{vacation_balance?.used_days || 0}</div>
               <div className="text-sm text-gray-600">Genommen</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{vacation_balance.remaining_days}</div>
+              <div className="text-2xl font-bold text-green-600">{vacation_balance?.remaining_days || 0}</div>
               <div className="text-sm text-gray-600">Verbleibend</div>
             </div>
           </div>
-          {vacation_balance.pending_requests > 0 && (
+          {vacation_balance?.pending_requests > 0 && (
             <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
               <div className="text-sm text-yellow-800">
                 {vacation_balance.pending_requests} Antrag(e) warten auf Genehmigung
