@@ -1212,6 +1212,22 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
               ))}
             </tbody>
           </table>
+          </div>
+          
+          {/* Scroll Indicator */}
+          {filteredEmployees.length > 8 && (
+            <div className="bg-gray-50 px-6 py-2 border-t">
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>
+                  Zeige {Math.min(8, filteredEmployees.length)} von {filteredEmployees.length} Mitarbeitern
+                </span>
+                <span className="flex items-center">
+                  Scrollen für mehr
+                  <ChevronRight className="w-3 h-3 ml-1 rotate-90" />
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
