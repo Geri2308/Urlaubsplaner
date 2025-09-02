@@ -98,10 +98,14 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
     """Check if adding this vacation would exceed the 30% concurrent limit"""
     from datetime import timedelta
     
+    # Convert dates to ISO format for MongoDB query
+    start_date_str = start_date.isoformat()
+    end_date_str = end_date.isoformat()
+    
     # Get all vacation entries that overlap with the requested dates
     overlap_query = {
-        "start_date": {"$lte": end_date},
-        "end_date": {"$gte": start_date},
+        "start_date": {"$lte": end_date_str},
+        "end_date": {"$gte": start_date_str},
         "vacation_type": VacationType.URLAUB  # Only count actual vacation days
     }
     
