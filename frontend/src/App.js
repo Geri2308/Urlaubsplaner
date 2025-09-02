@@ -82,7 +82,7 @@ const Dashboard = ({ currentUser }) => {
           {vacation_balance?.pending_requests > 0 && (
             <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
               <div className="text-sm text-yellow-800">
-                {vacation_balance.pending_requests} Antrag(e) warten auf Genehmigung
+                {vacation_balance?.pending_requests || 0} Antrag(e) warten auf Genehmigung
               </div>
             </div>
           )}
