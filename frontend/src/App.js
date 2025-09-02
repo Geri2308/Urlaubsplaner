@@ -1112,6 +1112,8 @@ function App() {
             onSearchChange={setSearchTerm}
             showFilters={showFilters}
             onToggleFilters={() => setShowFilters(!showFilters)}
+            employees={employees}
+            settings={settings}
           />
 
           {/* Calendar Navigation */}
