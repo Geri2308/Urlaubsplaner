@@ -34,6 +34,7 @@ class VacationType(str, Enum):
 class UserRole(str, Enum):
     ADMIN = "admin"
     EMPLOYEE = "employee"
+    LEIHARBEITER = "leiharbeiter"
 
 # Data Models
 class Employee(BaseModel):
