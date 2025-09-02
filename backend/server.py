@@ -67,8 +67,8 @@ class VacationRequest(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     user_name: str
-    start_date: date
-    end_date: date
+    start_date: str  # Store as string for better MongoDB compatibility
+    end_date: str    # Store as string for better MongoDB compatibility
     vacation_type: VacationType
     reason: str
     status: VacationStatus = VacationStatus.PENDING
@@ -79,8 +79,8 @@ class VacationRequest(BaseModel):
 
 class VacationRequestCreate(BaseModel):
     user_id: str
-    start_date: date
-    end_date: date
+    start_date: str  # Accept as string from frontend
+    end_date: str    # Accept as string from frontend  
     vacation_type: VacationType
     reason: str
 
