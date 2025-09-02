@@ -1172,10 +1172,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEdi
                     <p className="text-sm text-gray-500">{employee.email}</p>
                   </div>
                   <button
-                    onClick={() => {
-                      setSkillsEditEmployee(employee);
-                      setShowSkillsDialog(true);
-                    }}
+                    onClick={() => onEditSkills(employee)}
                     className="text-blue-600 hover:text-blue-800 transition-colors mr-2"
                     title="Skills bearbeiten"
                   >
