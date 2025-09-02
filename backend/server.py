@@ -54,6 +54,7 @@ class EmployeeCreate(BaseModel):
     name: str
     email: Optional[str] = ""
     role: UserRole = UserRole.EMPLOYEE
+    skills: List[Skill] = Field(default_factory=list)
 
 class VacationEntry(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
