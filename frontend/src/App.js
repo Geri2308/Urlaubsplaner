@@ -945,6 +945,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEdi
   const [skillFilter, setSkillFilter] = useState('all');
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [viewMode, setViewMode] = useState('table');
+  const [sickDaysData, setSickDaysData] = useState({});
 
   // Get unique skills from all employees
   const allSkills = [...new Set(
