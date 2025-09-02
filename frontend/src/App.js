@@ -939,7 +939,7 @@ const SkillsEditDialog = ({ isOpen, onClose, employee, onSave }) => {
 };
 
 // Team Management View
-const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => {
+const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEditSkills }) => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [skillFilter, setSkillFilter] = useState('all');
