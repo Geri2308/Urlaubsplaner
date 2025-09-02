@@ -828,7 +828,6 @@ function App() {
   const [showEmployeeDialog, setShowEmployeeDialog] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [defaultRole, setDefaultRole] = useState('employee');
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
