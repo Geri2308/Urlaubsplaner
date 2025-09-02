@@ -1509,9 +1509,10 @@ function App() {
 
   const handleSkillsSave = async () => {
     try {
-      // Call parent's data reload function
-      if (onDataReload) {
-        await onDataReload();
+      // Reload data after skills save
+      await loadData();
+      if (employees.length > 0) {
+        await loadSickDaysData();
       }
     } catch (error) {
       console.error('Error reloading data:', error);
