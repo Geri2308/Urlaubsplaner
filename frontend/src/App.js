@@ -847,6 +847,72 @@ const YearCalendarView = ({ currentDate, vacationEntries, onMonthClick }) => {
 
 // Team Management View
 const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => {
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [skillFilter, setSkillFilter] = useState('all');
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [viewMode, setViewMode] = useState('table');
+
+  // Get unique skills from all employees
+  const allSkills = [...new Set(
+    employees.flatMap(emp => (emp.skills || []).map(skill => skill.name))
+  )].sort();
+
+  // Filter and sort employees
+  const filteredEmployees = employees
+    .filter(emp => {
+      if (roleFilter !== 'all' && emp.role !== roleFilter) return false;
+      if (skillFilter !== 'all' && !(emp.skills || []).some(skill => skill.name === skillFilter)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'role':
+          return a.role.localeCompare(b.role);
+        case 'email':
+          return (a.email || '').localeCompare(b.email || '');
+        case 'skills':
+          return (b.skills || []).length - (a.skills || []).length;
+        default:
+          return 0;
+      }
+    });
+
+  const handleSelectAll = (checked) => {
+    setSelectedEmployees(checked ? filteredEmployees.map(emp => emp.id) : []);
+  };
+
+  const handleSelectEmployee = (employeeId, checked) => {
+    if (checked) {
+      setSelectedEmployees([...selectedEmployees, employeeId]);
+    } else {
+      setSelectedEmployees(selectedEmployees.filter(id => id !== employeeId));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedEmployees.length === 0) return;
+    
+    const confirmed = window.confirm(
+      `${selectedEmployees.length} Mitarbeiter wirklich löschen? Alle Urlaubseinträge werden ebenfalls gelöscht.`
+    );
+    
+    if (confirmed) {
+      for (const employeeId of selectedEmployees) {
+        try {
+          await axios.delete(`${API}/employees/${employeeId}`);
+        } catch (err) {
+          console.error('Fehler beim Löschen:', err);
+        }
+      }
+      setSelectedEmployees([]);
+      // Trigger reload (would need to be passed from parent)
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="bg-white p-6">
       <div className="mb-6">
@@ -858,8 +924,103 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
           </span>
         </p>
         <div className="mt-2 text-sm text-gray-500">
-          Aktuell: {employees.length} Mitarbeiter • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} (30%)
+          Aktuell: {employees.length} Mitarbeiter • Gefiltert: {filteredEmployees.length} • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} (30%)
         </div>
+      </div>
+
+      {/* Smart Filter Bar */}
+      <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Role Filter */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Rolle:</label>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Alle Rollen</option>
+              <option value="admin">Administrator</option>
+              <option value="employee">Mitarbeiter</option>
+              <option value="leiharbeiter">Leiharbeiter</option>
+            </select>
+          </div>
+
+          {/* Skill Filter */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Skill:</label>
+            <select
+              value={skillFilter}
+              onChange={(e) => setSkillFilter(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Alle Skills</option>
+              {allSkills.map(skill => (
+                <option key={skill} value={skill}>{skill}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Sortieren:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="name">Name A-Z</option>
+              <option value="role">Rolle</option>
+              <option value="email">E-Mail</option>
+              <option value="skills">Anzahl Skills</option>
+            </select>
+          </div>
+
+          {/* View Mode */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Ansicht:</label>
+            <select
+              value={viewMode}
+              onChange={(e) => setViewMode(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="table">Tabelle</option>
+              <option value="cards">Karten</option>
+            </select>
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedEmployees.length > 0 && (
+            <div className="flex items-center space-x-2 ml-auto">
+              <span className="text-sm text-gray-600">
+                {selectedEmployees.length} ausgewählt
+              </span>
+              <button
+                onClick={handleBulkDelete}
+                className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 inline mr-1" />
+                Löschen
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Clear Filters */}
+        {(roleFilter !== 'all' || skillFilter !== 'all' || sortBy !== 'name') && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <button
+              onClick={() => {
+                setRoleFilter('all');
+                setSkillFilter('all');
+                setSortBy('name');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              Alle Filter zurücksetzen
+            </button>
+          </div>
+        )}
       </div>
 
       {employees.length === 0 ? (
