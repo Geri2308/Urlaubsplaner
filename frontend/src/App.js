@@ -791,9 +791,11 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       employee.role === 'admin' 
                         ? 'bg-purple-100 text-purple-800' 
+                        : employee.role === 'leiharbeiter'
+                        ? 'bg-orange-100 text-orange-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {employee.role === 'admin' ? 'Administrator' : 'Mitarbeiter'}
+                      {employee.role === 'admin' ? 'Administrator' : employee.role === 'leiharbeiter' ? 'Leiharbeiter' : 'Mitarbeiter'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
