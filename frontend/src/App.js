@@ -95,7 +95,7 @@ const SkillManager = ({ skills = [], onSkillsChange }) => {
       </label>
       
       {/* Existing Skills */}
-      {skills.map((skill, index) => (
+      {safeSkills.map((skill, index) => (
         <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium">{skill.name}</span>
