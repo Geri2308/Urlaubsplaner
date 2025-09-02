@@ -1489,8 +1489,36 @@ function App() {
   };
 
   const handleSkillsSave = () => {
-    loadData(); // Reload data after save
+    // Reload data after skills update
+    loadData();
   };
+
+  // Load sick days data for all employees
+  const loadSickDaysData = async () => {
+    try {
+      const sickDaysPromises = employees.map(async (employee) => {
+        try {
+          const response = await axios.get(`${API}/analytics/employee-sick-days/${employee.id}?year=${new Date().getFullYear()}`);
+          return { [employee.id]: response.data.sick_days };
+        } catch (err) {
+          return { [employee.id]: 0 };
+        }
+      });
+      
+      const sickDaysResults = await Promise.all(sickDaysPromises);
+      const sickDaysMap = sickDaysResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      setSickDaysData(sickDaysMap);
+    } catch (err) {
+      console.error('Error loading sick days:', err);
+    }
+  };
+
+  // Load sick days when employees change
+  useEffect(() => {
+    if (employees.length > 0) {
+      loadSickDaysData();
+    }
+  }, [employees]);
 
   // View handlers
   const handleMonthClick = (month) => {
