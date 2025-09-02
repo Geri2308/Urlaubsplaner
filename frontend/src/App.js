@@ -856,7 +856,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
           </span>
         </p>
         <div className="mt-2 text-sm text-gray-500">
-          Aktuell: {employees.length} Mitarbeiter • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} ({30}%)
+          Aktuell: {employees.length} Mitarbeiter • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} (30%)
         </div>
       </div>
 
