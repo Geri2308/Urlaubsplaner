@@ -1161,10 +1161,23 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
                     onChange={(e) => handleSelectEmployee(employee.id, e.target.checked)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <div>
-                    <h3 className="font-medium text-gray-900">{employee.name}</h3>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">
+                      {employee.role === 'admin' && '👑 '}
+                      {employee.name}
+                    </h3>
                     <p className="text-sm text-gray-500">{employee.email}</p>
                   </div>
+                  <button
+                    onClick={() => {
+                      setSkillsEditEmployee(employee);
+                      setShowSkillsDialog(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 transition-colors mr-2"
+                    title="Skills bearbeiten"
+                  >
+                    <Star className="w-4 h-4" />
+                  </button>
                 </div>
                 <div className="flex space-x-1">
                   <button
