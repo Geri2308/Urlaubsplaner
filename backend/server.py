@@ -382,14 +382,14 @@ async def get_employee_vacation_summary(employee_id: str, year: int = 2025):
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
     
-    # Get vacation entries for the year
-    start_of_year = date(year, 1, 1)
-    end_of_year = date(year, 12, 31)
+    # Get vacation entries for the year - convert dates to ISO strings
+    start_of_year_str = date(year, 1, 1).isoformat()
+    end_of_year_str = date(year, 12, 31).isoformat()
     
     vacation_entries = await db.vacation_entries.find({
         "employee_id": employee_id,
-        "start_date": {"$gte": start_of_year},
-        "end_date": {"$lte": end_of_year}
+        "start_date": {"$gte": start_of_year_str},
+        "end_date": {"$lte": end_of_year_str}
     }).to_list(1000)
     
     # Calculate totals by type
