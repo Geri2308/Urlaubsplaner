@@ -1493,9 +1493,15 @@ function App() {
   };
 
   const handleSkillsSave = async () => {
-    // Call parent's data reload function
-    if (onDataReload) {
-      await onDataReload();
+    try {
+      // Call parent's data reload function
+      if (onDataReload) {
+        await onDataReload();
+      }
+    } catch (error) {
+      console.error('Error reloading data:', error);
+      // Fallback: reload the page
+      window.location.reload();
     }
   };
 
