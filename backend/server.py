@@ -237,14 +237,23 @@ async def create_vacation_entry(vacation_data: VacationEntryCreate):
                 detail=f"Too many concurrent vacations. Maximum {concurrent_check['max_allowed']} people ({concurrent_check['percentage']}%) can be on vacation simultaneously. Peak day: {concurrent_check['max_concurrent_day']} with {concurrent_check['max_concurrent_count']} people."
             )
     
-    # Create vacation entry
+    # Create vacation entry - convert dates to strings for MongoDB
+    vacation_dict = vacation_data.dict()
+    vacation_dict['start_date'] = vacation_dict['start_date'].isoformat()
+    vacation_dict['end_date'] = vacation_dict['end_date'].isoformat()
+    
     vacation_entry = VacationEntry(
-        **vacation_data.dict(),
+        **vacation_dict,
         employee_name=employee.name,
         days_count=days_count
     )
     
-    await db.vacation_entries.insert_one(vacation_entry.dict())
+    # Convert the entire dict for MongoDB (dates already converted above)
+    entry_dict = vacation_entry.dict()
+    entry_dict['start_date'] = vacation_dict['start_date']  # Keep as string
+    entry_dict['end_date'] = vacation_dict['end_date']      # Keep as string
+    
+    await db.vacation_entries.insert_one(entry_dict)
     return vacation_entry
 
 @api_router.get("/vacation-entries", response_model=List[VacationEntry])
