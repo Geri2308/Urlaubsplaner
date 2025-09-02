@@ -962,6 +962,11 @@ function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState({
+    max_concurrent_percentage: 30,
+    total_employees: 0,
+    max_concurrent_calculated: 1
+  });
 
   // Load initial data
   useEffect(() => {
