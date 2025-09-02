@@ -435,10 +435,14 @@ async def get_employee_sick_days(employee_id: str, year: int = 2025):
 @api_router.get("/analytics/team-overview")
 async def get_team_overview(start_date: date, end_date: date):
     """Get team vacation overview for a date range"""
+    # Convert dates to ISO strings for MongoDB queries
+    start_date_str = start_date.isoformat()
+    end_date_str = end_date.isoformat()
+    
     # Get all vacation entries in the date range
     vacation_entries = await db.vacation_entries.find({
-        "start_date": {"$lte": end_date},
-        "end_date": {"$gte": start_date}
+        "start_date": {"$lte": end_date_str},
+        "end_date": {"$gte": start_date_str}
     }).to_list(1000)
     
     # Get all employees
@@ -448,7 +452,7 @@ async def get_team_overview(start_date: date, end_date: date):
     concurrent_check = await check_concurrent_vacations(start_date, end_date)
     
     return {
-        "date_range": {"start_date": start_date, "end_date": end_date},
+        "date_range": {"start_date": start_date_str, "end_date": end_date_str},
         "total_employees": len(employees),
         "vacation_entries_count": len(vacation_entries),
         "concurrent_analysis": concurrent_check,
