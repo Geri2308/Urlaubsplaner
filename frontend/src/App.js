@@ -1125,7 +1125,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
         </div>
       ) : (
         <div className="shadow ring-1 ring-black ring-opacity-5 md:rounded-lg overflow-hidden">
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto team-scroll-container smooth-scroll">
             <table className="min-w-full divide-y divide-gray-300">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
