@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { 
   Calendar,
@@ -19,7 +19,10 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  X
+  X,
+  UserPlus,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -35,6 +38,7 @@ const VACATION_TYPES = {
 // Toolbar Component (Word-style)
 const Toolbar = ({ 
   onNewVacation, 
+  onNewEmployee,
   onExport, 
   onImport, 
   onPrint, 
@@ -57,6 +61,13 @@ const Toolbar = ({
           >
             <Plus className="w-4 h-4 mr-1" />
             Neuer Urlaub
+          </button>
+          <button
+            onClick={onNewEmployee}
+            className="flex items-center px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+          >
+            <UserPlus className="w-4 h-4 mr-1" />
+            Mitarbeiter
           </button>
           <button
             onClick={onExport}
@@ -144,7 +155,7 @@ const Toolbar = ({
       {/* Breadcrumb/Status Bar */}
       <div className="text-xs text-gray-500 flex items-center justify-between">
         <span>Urlaubsplaner • {format(new Date(), 'MMMM yyyy', { locale: de })}</span>
-        <span>20 Mitarbeiter • Max. 6 gleichzeitig (30%)</span>
+        <span>Max. 6 gleichzeitig (30%)</span>
       </div>
     </div>
   );
@@ -180,6 +191,141 @@ const CalendarNavigation = ({ currentDate, onPrevious, onNext, view }) => {
       >
         <ChevronRight className="w-5 h-5" />
       </button>
+    </div>
+  );
+};
+
+// Employee Dialog Component
+const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: 'employee'
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editingEmployee) {
+      setFormData({
+        name: editingEmployee.name,
+        email: editingEmployee.email,
+        role: editingEmployee.role
+      });
+    } else {
+      setFormData({
+        name: '',
+        email: '',
+        role: 'employee'
+      });
+    }
+    setError('');
+  }, [editingEmployee, isOpen]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (editingEmployee) {
+        await axios.put(`${API}/employees/${editingEmployee.id}`, formData);
+      } else {
+        await axios.post(`${API}/employees`, formData);
+      }
+      onSave();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Ein Fehler ist aufgetreten');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">
+            {editingEmployee ? 'Mitarbeiter bearbeiten' : 'Neuer Mitarbeiter'}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Max Mustermann"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              E-Mail *
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="max.mustermann@firma.de"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Rolle
+            </label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="employee">Mitarbeiter</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Speichern...' : (editingEmployee ? 'Aktualisieren' : 'Erstellen')}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
@@ -451,6 +597,203 @@ const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClic
   );
 };
 
+// Year Calendar View
+const YearCalendarView = ({ currentDate, vacationEntries, onMonthClick }) => {
+  const yearStart = startOfYear(currentDate);
+  const yearEnd = endOfYear(currentDate);
+  const yearMonths = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+  const getVacationsForMonth = (month) => {
+    const monthStart = startOfMonth(month);
+    const monthEnd = endOfMonth(month);
+    
+    return vacationEntries.filter(entry => {
+      const entryStart = new Date(entry.start_date);
+      const entryEnd = new Date(entry.end_date);
+      return (entryStart <= monthEnd && entryEnd >= monthStart);
+    });
+  };
+
+  const getMonthVacationStats = (month) => {
+    const monthVacations = getVacationsForMonth(month);
+    const uniqueEmployees = [...new Set(monthVacations.map(v => v.employee_id))];
+    
+    const typeStats = {
+      URLAUB: monthVacations.filter(v => v.vacation_type === 'URLAUB').length,
+      KRANKHEIT: monthVacations.filter(v => v.vacation_type === 'KRANKHEIT').length,
+      SONDERURLAUB: monthVacations.filter(v => v.vacation_type === 'SONDERURLAUB').length
+    };
+
+    return {
+      totalEntries: monthVacations.length,
+      uniqueEmployees: uniqueEmployees.length,
+      typeStats
+    };
+  };
+
+  return (
+    <div className="bg-white p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {yearMonths.map((month) => {
+          const stats = getMonthVacationStats(month);
+          
+          return (
+            <div
+              key={month.toISOString()}
+              onClick={() => onMonthClick(month)}
+              className="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="text-center mb-3">
+                <h3 className="text-lg font-semibold text-gray-900 capitalize">
+                  {format(month, 'MMMM', { locale: de })}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {format(month, 'yyyy')}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Urlaubseinträge:</span>
+                  <span className="font-medium">{stats.totalEntries}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Betroffene Mitarbeiter:</span>
+                  <span className="font-medium">{stats.uniqueEmployees}</span>
+                </div>
+
+                {stats.totalEntries > 0 && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <div className="text-xs text-gray-500 mb-1">Aufschlüsselung:</div>
+                    <div className="space-y-1">
+                      {stats.typeStats.URLAUB > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
+                            <span className="text-xs">Urlaub</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.URLAUB}</span>
+                        </div>
+                      )}
+                      {stats.typeStats.KRANKHEIT > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
+                            <span className="text-xs">Krankheit</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.KRANKHEIT}</span>
+                        </div>
+                      )}
+                      {stats.typeStats.SONDERURLAUB > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
+                            <span className="text-xs">Sonderurlaub</span>
+                          </div>
+                          <span className="text-xs font-medium">{stats.typeStats.SONDERURLAUB}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {stats.totalEntries === 0 && (
+                  <div className="text-center py-2">
+                    <span className="text-xs text-gray-400">Keine Einträge</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Team Management View
+const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => {
+  return (
+    <div className="bg-white p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Team-Verwaltung</h2>
+        <p className="text-gray-600">Verwalten Sie Ihre Mitarbeiter und deren Informationen.</p>
+      </div>
+
+      {employees.length === 0 ? (
+        <div className="text-center py-12">
+          <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Mitarbeiter vorhanden</h3>
+          <p className="text-gray-500 mb-6">Fügen Sie Ihren ersten Mitarbeiter hinzu, um zu beginnen.</p>
+        </div>
+      ) : (
+        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <table className="min-w-full divide-y divide-gray-300">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  E-Mail
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Rolle
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Urlaubstage
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Aktionen
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {employees.map((employee) => (
+                <tr key={employee.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{employee.email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      employee.role === 'admin' 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {employee.role === 'admin' ? 'Administrator' : 'Mitarbeiter'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employee.vacation_days_total} Tage
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => onEditEmployee(employee)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onDeleteEmployee(employee)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Main App Component
 function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -458,7 +801,9 @@ function App() {
   const [employees, setEmployees] = useState([]);
   const [vacationEntries, setVacationEntries] = useState([]);
   const [showVacationDialog, setShowVacationDialog] = useState(false);
+  const [showEmployeeDialog, setShowEmployeeDialog] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
+  const [editingEmployee, setEditingEmployee] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -510,13 +855,44 @@ function App() {
     setShowVacationDialog(true);
   };
 
+  const handleNewEmployee = () => {
+    setEditingEmployee(null);
+    setShowEmployeeDialog(true);
+  };
+
   const handleEditVacation = (entry) => {
     setEditingEntry(entry);
     setShowVacationDialog(true);
   };
 
+  const handleEditEmployee = (employee) => {
+    setEditingEmployee(employee);
+    setShowEmployeeDialog(true);
+  };
+
+  const handleDeleteEmployee = async (employee) => {
+    if (window.confirm(`Mitarbeiter "${employee.name}" wirklich löschen? Alle Urlaubseinträge werden ebenfalls gelöscht.`)) {
+      try {
+        await axios.delete(`${API}/employees/${employee.id}`);
+        loadData();
+      } catch (err) {
+        alert('Fehler beim Löschen des Mitarbeiters');
+      }
+    }
+  };
+
   const handleSaveVacation = () => {
     loadData(); // Reload data after save
+  };
+
+  const handleSaveEmployee = () => {
+    loadData(); // Reload data after save
+  };
+
+  // View handlers
+  const handleMonthClick = (month) => {
+    setCurrentDate(month);
+    setCurrentView('month');
   };
 
   // Placeholder handlers
@@ -555,6 +931,7 @@ function App() {
           {/* Toolbar */}
           <Toolbar
             onNewVacation={handleNewVacation}
+            onNewEmployee={handleNewEmployee}
             onExport={handleExport}
             onImport={handleImport}
             onPrint={handlePrint}
@@ -596,17 +973,19 @@ function App() {
             )}
 
             {currentView === 'year' && (
-              <div className="p-8 text-center text-gray-500">
-                <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p>Jahresansicht wird implementiert...</p>
-              </div>
+              <YearCalendarView
+                currentDate={currentDate}
+                vacationEntries={vacationEntries}
+                onMonthClick={handleMonthClick}
+              />
             )}
 
             {currentView === 'team' && (
-              <div className="p-8 text-center text-gray-500">
-                <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p>Teamansicht wird implementiert...</p>
-              </div>
+              <TeamManagementView
+                employees={employees}
+                onEditEmployee={handleEditEmployee}
+                onDeleteEmployee={handleDeleteEmployee}
+              />
             )}
           </div>
 
@@ -617,6 +996,14 @@ function App() {
             onSave={handleSaveVacation}
             employees={employees}
             editingEntry={editingEntry}
+          />
+
+          {/* Employee Dialog */}
+          <EmployeeDialog
+            isOpen={showEmployeeDialog}
+            onClose={() => setShowEmployeeDialog(false)}
+            onSave={handleSaveEmployee}
+            editingEmployee={editingEmployee}
           />
         </div>
       </BrowserRouter>
