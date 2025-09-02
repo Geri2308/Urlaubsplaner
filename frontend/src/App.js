@@ -30,6 +30,113 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Star Rating Component
+const StarRating = ({ rating, onRatingChange, readonly = false }) => {
+  const stars = [1, 2, 3, 4, 5];
+  
+  return (
+    <div className="flex space-x-1">
+      {stars.map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={readonly}
+          onClick={() => !readonly && onRatingChange(star)}
+          className={`w-5 h-5 ${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
+        >
+          <Star
+            className={`w-full h-full ${
+              star <= rating
+                ? 'text-yellow-400 fill-yellow-400'
+                : 'text-gray-300'
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Skill Management Component
+const SkillManager = ({ skills, onSkillsChange }) => {
+  const [newSkillName, setNewSkillName] = useState('');
+  const [newSkillRating, setNewSkillRating] = useState(3);
+
+  const addSkill = () => {
+    if (newSkillName.trim()) {
+      const newSkill = {
+        name: newSkillName.trim(),
+        rating: newSkillRating
+      };
+      onSkillsChange([...skills, newSkill]);
+      setNewSkillName('');
+      setNewSkillRating(3);
+    }
+  };
+
+  const removeSkill = (index) => {
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    onSkillsChange(updatedSkills);
+  };
+
+  const updateSkillRating = (index, rating) => {
+    const updatedSkills = [...skills];
+    updatedSkills[index].rating = rating;
+    onSkillsChange(updatedSkills);
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="block text-sm font-medium text-gray-700">
+        Fähigkeiten & Skills
+      </label>
+      
+      {/* Existing Skills */}
+      {skills.map((skill, index) => (
+        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-medium">{skill.name}</span>
+            <StarRating 
+              rating={skill.rating} 
+              onRatingChange={(rating) => updateSkillRating(index, rating)}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => removeSkill(index)}
+            className="text-red-500 hover:text-red-700"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
+
+      {/* Add New Skill */}
+      <div className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
+        <input
+          type="text"
+          value={newSkillName}
+          onChange={(e) => setNewSkillName(e.target.value)}
+          placeholder="Neue Fähigkeit..."
+          className="flex-1 border-none outline-none text-sm"
+          onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+        />
+        <StarRating 
+          rating={newSkillRating} 
+          onRatingChange={setNewSkillRating}
+        />
+        <button
+          type="button"
+          onClick={addSkill}
+          className="text-green-600 hover:text-green-800"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Vacation Types
 const VACATION_TYPES = {
   URLAUB: { label: 'Urlaub', color: 'bg-blue-500', textColor: 'text-blue-700' },
