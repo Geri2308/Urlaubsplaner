@@ -1596,6 +1596,10 @@ function App() {
                 employees={employees}
                 onEditEmployee={handleEditEmployee}
                 onDeleteEmployee={handleDeleteEmployee}
+                onEditSkills={(employee) => {
+                  setSkillsEditEmployee(employee);
+                  setShowSkillsDialog(true);
+                }}
               />
             )}
           </div>
