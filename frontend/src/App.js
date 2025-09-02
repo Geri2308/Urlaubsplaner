@@ -1110,7 +1110,18 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
                 </div>
               </div>
             </div>
-          ))}
+            ))}
+          </div>
+          
+          {/* Cards Scroll Indicator */}
+          {filteredEmployees.length > 6 && (
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                Scrollen für mehr Mitarbeiter
+                <ChevronRight className="w-3 h-3 ml-1 rotate-90" />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="shadow ring-1 ring-black ring-opacity-5 md:rounded-lg overflow-hidden">
