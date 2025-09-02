@@ -309,7 +309,8 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'employee'
+    role: 'employee',
+    skills: []
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
