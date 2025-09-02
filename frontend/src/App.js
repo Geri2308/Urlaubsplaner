@@ -311,6 +311,7 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
             >
               <option value="employee">Mitarbeiter</option>
               <option value="admin">Administrator</option>
+              <option value="leiharbeiter">Leiharbeiter</option>
             </select>
           </div>
 
