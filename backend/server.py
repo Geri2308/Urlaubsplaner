@@ -409,6 +409,29 @@ async def get_employee_vacation_summary(employee_id: str, year: int = 2025):
         "vacation_entries": [VacationEntry(**entry) for entry in vacation_entries]
     }
 
+@api_router.get("/analytics/employee-sick-days/{employee_id}")
+async def get_employee_sick_days(employee_id: str, year: int = 2025):
+    """Get sick days for a specific employee and year"""
+    # Get vacation entries for the year that are sick days
+    start_of_year = date(year, 1, 1)
+    end_of_year = date(year, 12, 31)
+    
+    sick_entries = await db.vacation_entries.find({
+        "employee_id": employee_id,
+        "vacation_type": VacationType.KRANKHEIT,
+        "start_date": {"$gte": start_of_year.isoformat()},
+        "end_date": {"$lte": end_of_year.isoformat()}
+    }).to_list(1000)
+    
+    total_sick_days = sum(entry["days_count"] for entry in sick_entries)
+    
+    return {
+        "employee_id": employee_id,
+        "year": year,
+        "sick_days": total_sick_days,
+        "sick_entries_count": len(sick_entries)
+    }
+
 @api_router.get("/analytics/team-overview")
 async def get_team_overview(start_date: date, end_date: date):
     """Get team vacation overview for a date range"""
