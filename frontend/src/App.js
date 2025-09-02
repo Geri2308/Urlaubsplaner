@@ -282,7 +282,7 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              E-Mail *
+              E-Mail
             </label>
             <input
               type="email"
@@ -290,7 +290,6 @@ const EmployeeDialog = ({ isOpen, onClose, onSave, editingEmployee = null }) => 
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="max.mustermann@firma.de"
-              required
             />
           </div>
 
