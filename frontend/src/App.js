@@ -1036,8 +1036,9 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
           <p className="text-gray-500 mb-6">Passen Sie Ihre Filter an, um Mitarbeiter zu finden.</p>
         </div>
       ) : viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEmployees.map((employee) => (
+        <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pr-2">
+            {filteredEmployees.map((employee) => (
             <div
               key={employee.id}
               className={`bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
