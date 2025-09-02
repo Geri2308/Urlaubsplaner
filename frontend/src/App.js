@@ -867,15 +867,18 @@ const SkillsEditDialog = ({ isOpen, onClose, employee, onSave }) => {
     try {
       const updatedEmployee = {
         name: employee.name,
-        email: employee.email,
+        email: employee.email || "",
         role: employee.role,
         skills: skills
       };
       
-      await axios.put(`${API}/employees/${employee.id}`, updatedEmployee);
+      console.log('Saving skills for employee:', employee.name, 'Skills:', skills);
+      const response = await axios.put(`${API}/employees/${employee.id}`, updatedEmployee);
+      console.log('Skills save response:', response.data);
       onSave();
       onClose();
     } catch (err) {
+      console.error('Skills save error:', err);
       setError(err.response?.data?.detail || 'Fehler beim Speichern der Skills');
     } finally {
       setLoading(false);
