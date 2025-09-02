@@ -1494,6 +1494,10 @@ function App() {
     loadData(); // Reload data after save
   };
 
+  const handleSkillsSave = () => {
+    loadData(); // Reload data after save
+  };
+
   // View handlers
   const handleMonthClick = (month) => {
     setCurrentDate(month);
