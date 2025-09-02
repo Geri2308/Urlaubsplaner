@@ -1502,6 +1502,8 @@ function App() {
   // Load sick days data for all employees
   const loadSickDaysData = async () => {
     try {
+      if (employees.length === 0) return;
+      
       const sickDaysPromises = employees.map(async (employee) => {
         try {
           const response = await axios.get(`${API}/analytics/employee-sick-days/${employee.id}?year=${new Date().getFullYear()}`);
