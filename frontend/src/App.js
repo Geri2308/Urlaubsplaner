@@ -1277,7 +1277,22 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee }) => 
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-sm font-medium text-gray-900">
+                        {employee.role === 'admin' && '👑 '}
+                        {employee.name}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSkillsEditEmployee(employee);
+                          setShowSkillsDialog(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        title="Skills bearbeiten"
+                      >
+                        <Star className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{employee.email}</div>
