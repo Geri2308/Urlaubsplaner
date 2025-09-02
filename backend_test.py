@@ -161,7 +161,7 @@ class UrlaubsplanerAPITester:
             return False, {}
         
         update_data = {
-            "employee_id": self.created_vacation_id,
+            "employee_id": self.created_employee_id,
             "start_date": "2025-03-10",
             "end_date": "2025-03-15",
             "vacation_type": "SONDERURLAUB",
