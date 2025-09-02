@@ -582,18 +582,10 @@ const VacationDialog = ({ isOpen, onClose, onSave, employees, editingEntry = nul
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notizen (optional)
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="3"
-              placeholder="Zusätzliche Informationen..."
-            />
-          </div>
+          <SkillManager
+            skills={formData.skills}
+            onSkillsChange={(skills) => setFormData({ ...formData, skills })}
+          />
 
           <div className="flex justify-between pt-4">
             {editingEntry && (
