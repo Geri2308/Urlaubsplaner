@@ -1033,6 +1033,7 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onEdi
         </p>
         <div className="mt-2 text-sm text-gray-500">
           Aktuell: {employees.length} Mitarbeiter • Gefiltert: {filteredEmployees.length} • Max. gleichzeitig im Urlaub: {Math.max(1, Math.floor(employees.length * 0.3))} (30%)
+          <span className="ml-3 text-purple-600 font-medium">👑 Admins werden automatisch zuerst angezeigt</span>
         </div>
       </div>
 
