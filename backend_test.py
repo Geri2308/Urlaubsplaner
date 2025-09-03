@@ -61,6 +61,37 @@ class UrlaubsplanerAPITester:
         """Test health check endpoint"""
         return self.run_test("Health Check", "GET", "health", 200)
 
+    def test_login_with_code_5678(self):
+        """Test login with code 5678 (should work as manager)"""
+        login_data = {"access_code": "5678"}
+        success, data = self.run_test("Login with Code 5678", "POST", "auth/login", 200, login_data)
+        if success:
+            expected_role = "manager"
+            actual_role = data.get("role", "")
+            if data.get("success") and actual_role == expected_role:
+                print(f"   ✅ Login successful as {actual_role}")
+            else:
+                print(f"   ❌ Login failed - Success: {data.get('success')}, Role: {actual_role}")
+                success = False
+        return success, data
+
+    def test_login_with_invalid_code(self):
+        """Test login with invalid code"""
+        login_data = {"access_code": "9999"}
+        success, data = self.run_test("Login with Invalid Code", "POST", "auth/login", 200, login_data)
+        if success:
+            # Should return success=false for invalid code
+            if not data.get("success"):
+                print(f"   ✅ Correctly rejected invalid code")
+            else:
+                print(f"   ❌ Invalid code was accepted")
+                success = False
+        return success, data
+
+    def test_get_admin_codes(self):
+        """Test get admin codes endpoint"""
+        return self.run_test("Get Admin Codes", "GET", "auth/admin-codes", 200)
+
     def test_get_settings(self):
         """Test get company settings"""
         return self.run_test("Get Settings", "GET", "settings", 200)
