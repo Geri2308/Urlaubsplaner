@@ -342,6 +342,19 @@ const Toolbar = ({
             <Users className="w-4 h-4 mr-1" />
             Team
           </button>
+          <div className="text-sm text-gray-600 ml-4">
+            {userRole === 'admin' ? '🔐 Admin' : 
+             userRole === 'manager' ? '👔 Manager' : 
+             userRole === 'employee' ? '👤 Mitarbeiter' : 
+             '👁️ Ansicht'}
+            {accessCode && ` (${accessCode})`}
+          </div>
+          <button
+            onClick={onLogout}
+            className="text-red-600 hover:text-red-800 flex items-center px-2 py-2 text-sm rounded transition-colors"
+          >
+            Abmelden
+          </button>
         </div>
 
         {/* Search & Filter Group */}
