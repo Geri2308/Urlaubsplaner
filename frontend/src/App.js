@@ -776,10 +776,19 @@ const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClic
   const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   const getVacationsForDay = (day) => {
+    const dayString = format(day, 'yyyy-MM-dd');
+    
     return vacationEntries.filter(entry => {
-      const entryStart = new Date(entry.start_date);
-      const entryEnd = new Date(entry.end_date);
-      return day >= entryStart && day <= entryEnd;
+      try {
+        // Handle both string and Date formats
+        const startDate = typeof entry.start_date === 'string' ? entry.start_date : format(new Date(entry.start_date), 'yyyy-MM-dd');
+        const endDate = typeof entry.end_date === 'string' ? entry.end_date : format(new Date(entry.end_date), 'yyyy-MM-dd');
+        
+        return dayString >= startDate && dayString <= endDate;
+      } catch (error) {
+        console.error('Error processing vacation entry:', entry, error);
+        return false;
+      }
     });
   };
 
