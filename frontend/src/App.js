@@ -1782,6 +1782,9 @@ function App() {
             onToggleFilters={() => setShowFilters(!showFilters)}
             employees={employees}
             settings={settings}
+            userRole={userRole}
+            accessCode={accessCode}
+            onLogout={handleLogout}
           />
 
           {/* Calendar Navigation */}
