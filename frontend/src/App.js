@@ -244,11 +244,12 @@ const SkillManager = ({ skills = [], onSkillsChange }) => {
   );
 };
 
-// Vacation Types
+// Vacation Types Configuration
 const VACATION_TYPES = {
-  URLAUB: { label: 'Urlaub', color: 'bg-blue-500', textColor: 'text-blue-700' },
-  KRANKHEIT: { label: 'Krankheit', color: 'bg-red-600', textColor: 'text-red-800' },
-  SONDERURLAUB: { label: 'Sonderurlaub', color: 'bg-green-500', textColor: 'text-green-700' }
+  URLAUB: { label: 'Urlaub', color: 'bg-blue-500' },
+  KRANKHEIT: { label: 'Krankheit', color: 'bg-red-500' },
+  SONDERURLAUB: { label: 'Sonderurlaub', color: 'bg-green-500' },
+  FORTBILDUNG: { label: 'Fortbildung', color: 'bg-purple-500' }
 };
 
 // Toolbar Component (Word-style)
