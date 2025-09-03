@@ -1319,9 +1319,12 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onDat
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
-                      <div className="text-sm font-medium text-gray-900">
-                        {employee.role === 'admin' && '👑 '}
-                        {employee.name}
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {employee.role === 'admin' && '👑 '}
+                          {employee.name}
+                        </div>
+                        <div className="text-xs text-gray-500">Code: {employee.employee_code || 'N/A'}</div>
                       </div>
                       <button
                         onClick={() => onEditSkills(employee)}
