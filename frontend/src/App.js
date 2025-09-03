@@ -108,14 +108,6 @@ const LoginScreen = ({ onLogin }) => {
           >
             {isLoading ? 'Anmelden...' : 'Admin-Zugang'}
           </button>
-
-          <button
-            type="button"
-            onClick={handleViewOnly}
-            className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-          >
-            Nur Ansehen (für Spieler)
-          </button>
         </form>
 
         <div className="mt-6 text-center text-xs text-gray-500">
