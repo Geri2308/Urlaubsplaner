@@ -347,7 +347,6 @@ const Toolbar = ({
              userRole === 'manager' ? '👔 Manager' : 
              userRole === 'employee' ? '👤 Mitarbeiter' : 
              '👁️ Ansicht'}
-            {accessCode && ` (${accessCode})`}
           </div>
           <button
             onClick={onLogout}
