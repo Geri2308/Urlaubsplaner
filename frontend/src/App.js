@@ -732,9 +732,12 @@ const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClic
                         onEntryClick(vacation);
                       }}
                       className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 ${vacationType.color} text-white`}
-                      title={`${vacation.employee_name} - ${vacationType.label}`}
+                      title={`${vacation.employee_name} - ${vacationType.label} (${vacation.vacation_code || 'N/A'})`}
                     >
-                      {vacation.employee_name}
+                      <div className="font-medium">{vacation.employee_name}</div>
+                      <div className="text-xs opacity-90">
+                        #{vacation.vacation_code || 'N/A'} • {vacationType.label}
+                      </div>
                     </div>
                   );
                 })}
