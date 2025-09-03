@@ -78,7 +78,29 @@ class CompanySettings(BaseModel):
     max_concurrent_percentage: int = 30  # 30% of total employees
     max_concurrent_fixed: Optional[int] = None  # Fixed number instead of percentage
 
+import random
+import string
+
 # Helper Functions
+def generate_4digit_code():
+    """Generate a unique 4-digit alphanumeric code"""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+
+async def ensure_unique_employee_code():
+    """Generate a unique 4-digit code for employee"""
+    while True:
+        code = generate_4digit_code()
+        existing = await db.employees.find_one({"employee_code": code})
+        if not existing:
+            return code
+
+async def ensure_unique_vacation_code():
+    """Generate a unique 4-digit code for vacation entry"""
+    while True:
+        code = generate_4digit_code()
+        existing = await db.vacation_entries.find_one({"vacation_code": code})
+        if not existing:
+            return code
 def calculate_business_days(start_date: date, end_date: date) -> int:
     """Calculate business days between two dates (excluding weekends)"""
     from datetime import timedelta
