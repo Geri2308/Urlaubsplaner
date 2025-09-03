@@ -294,6 +294,9 @@ async def create_vacation_entry(vacation_data: VacationEntryCreate):
                 detail=f"Too many concurrent vacations. Maximum {concurrent_check['max_allowed']} people ({concurrent_check['percentage']}%) can be on vacation simultaneously. Peak day: {concurrent_check['max_concurrent_day']} with {concurrent_check['max_concurrent_count']} people."
             )
     
+    # Generate unique 4-digit vacation code
+    vacation_code = await ensure_unique_vacation_code()
+    
     # Create vacation entry - convert dates to strings for MongoDB
     vacation_dict = vacation_data.dict()
     vacation_dict['start_date'] = vacation_dict['start_date'].isoformat()
@@ -301,6 +304,7 @@ async def create_vacation_entry(vacation_data: VacationEntryCreate):
     
     vacation_entry = VacationEntry(
         **vacation_dict,
+        vacation_code=vacation_code,
         employee_name=employee.name,
         days_count=days_count
     )
