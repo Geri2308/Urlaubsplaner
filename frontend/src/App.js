@@ -1591,10 +1591,15 @@ function App() {
     const savedRole = localStorage.getItem('userRole');
     const savedCode = localStorage.getItem('accessCode');
     
+    console.log('Checking existing login - Role:', savedRole, 'Code:', savedCode);
+    
     if (savedRole) {
       setUserRole(savedRole);
       setAccessCode(savedCode || '');
       setIsAuthenticated(true);
+      console.log('Restored authentication from localStorage');
+    } else {
+      console.log('No existing authentication found');
     }
   }, []);
 
