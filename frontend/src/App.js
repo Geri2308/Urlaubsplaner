@@ -1447,18 +1447,26 @@ function App() {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('Loading data from API:', API);
+      
       const [employeesRes, vacationRes, settingsRes] = await Promise.all([
         axios.get(`${API}/employees`),
         axios.get(`${API}/vacation-entries`),
         axios.get(`${API}/settings`)
       ]);
+      
+      console.log('Employees loaded:', employeesRes.data.length);
+      console.log('Vacation entries loaded:', vacationRes.data.length);
+      console.log('Settings loaded:', settingsRes.data);
+      
       setEmployees(employeesRes.data);
       setVacationEntries(vacationRes.data);
       setSettings(settingsRes.data);
       setError('');
     } catch (err) {
-      setError('Fehler beim Laden der Daten');
-      console.error('Loading error:', err);
+      console.error('Loading error details:', err);
+      console.error('Error response:', err.response);
+      setError(`Fehler beim Laden der Daten: ${err.message}`);
     } finally {
       setLoading(false);
     }
