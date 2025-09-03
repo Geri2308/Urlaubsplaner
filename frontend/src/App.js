@@ -1622,6 +1622,11 @@ function App() {
       console.log('✅ Vacation entries loaded:', vacationRes.data.length);
       console.log('✅ Settings loaded:', settingsRes.data);
       
+      // Debug: Log first few vacation entries
+      if (vacationRes.data.length > 0) {
+        console.log('Sample vacation entries:', vacationRes.data.slice(0, 3));
+      }
+      
       // Set the data
       setEmployees(employeesRes.data || []);
       setVacationEntries(vacationRes.data || []);
