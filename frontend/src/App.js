@@ -841,7 +841,11 @@ const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClic
               
               <div className="mt-1 space-y-1">
                 {dayVacations.slice(0, 3).map((vacation) => {
-                  const vacationType = VACATION_TYPES[vacation.vacation_type];
+                  const vacationType = VACATION_TYPES[vacation.vacation_type] || { label: 'Unbekannt', color: 'bg-gray-500' };
+                  if (!vacationType) {
+                    console.error('Unknown vacation type:', vacation.vacation_type);
+                    return null;
+                  }
                   return (
                     <div
                       key={vacation.id}
@@ -850,9 +854,9 @@ const MonthCalendarView = ({ currentDate, vacationEntries, employees, onDateClic
                         onEntryClick(vacation);
                       }}
                       className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 ${vacationType.color} text-white`}
-                      title={`${vacation.employee_name} - ${vacationType.label} (${vacation.vacation_code || 'N/A'})`}
+                      title={`${vacation.employee_name || 'Unbekannt'} - ${vacationType.label} (${vacation.vacation_code || 'N/A'})`}
                     >
-                      <div className="font-medium">{vacation.employee_name}</div>
+                      <div className="font-medium">{vacation.employee_name || 'Unbekannt'}</div>
                       <div className="text-xs opacity-90">
                         #{vacation.vacation_code || 'N/A'} • {vacationType.label}
                       </div>
