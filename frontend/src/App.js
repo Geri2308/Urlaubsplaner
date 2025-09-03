@@ -1589,9 +1589,10 @@ function App() {
     }
   }, []);
 
-  // Load initial data
+  // Load initial data after authentication
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('Authentication successful, loading data...');
       loadData();
     }
   }, [isAuthenticated]);
@@ -1599,7 +1600,8 @@ function App() {
   const loadData = async () => {
     try {
       setLoading(true);
-      console.log('Loading data from API:', API);
+      setError('');
+      console.log('Starting data load from API:', API);
       
       const [employeesRes, vacationRes, settingsRes] = await Promise.all([
         axios.get(`${API}/employees`),
@@ -1607,24 +1609,32 @@ function App() {
         axios.get(`${API}/settings`)
       ]);
       
-      console.log('Employees loaded:', employeesRes.data.length);
-      console.log('Vacation entries loaded:', vacationRes.data.length);
-      console.log('Settings loaded:', settingsRes.data);
+      console.log('✅ Employees loaded:', employeesRes.data.length);
+      console.log('✅ Vacation entries loaded:', vacationRes.data.length);
+      console.log('✅ Settings loaded:', settingsRes.data);
       
-      setEmployees(employeesRes.data);
-      setVacationEntries(vacationRes.data);
-      setSettings(settingsRes.data);
-      setError('');
+      // Set the data
+      setEmployees(employeesRes.data || []);
+      setVacationEntries(vacationRes.data || []);
+      setSettings(settingsRes.data || {});
       
       // Load sick days data after employees are loaded
-      if (employeesRes.data.length > 0) {
+      if (employeesRes.data?.length > 0) {
+        console.log('Loading sick days data...');
         await loadSickDaysData(employeesRes.data);
       }
       
+      console.log('🎉 All data loaded successfully!');
+      
     } catch (err) {
-      console.error('Loading error details:', err);
-      console.error('Error response:', err.response);
+      console.error('❌ Loading error details:', err);
+      console.error('❌ Error response:', err.response);
       setError(`Fehler beim Laden der Daten: ${err.message}`);
+      
+      // Set empty arrays as fallback
+      setEmployees([]);
+      setVacationEntries([]);
+      setSettings({});
     } finally {
       setLoading(false);
     }
