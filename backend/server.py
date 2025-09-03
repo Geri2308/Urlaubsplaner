@@ -43,6 +43,7 @@ class Skill(BaseModel):
 
 class Employee(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    employee_code: str = Field(default="")  # 4-digit code
     name: str
     email: Optional[str] = ""
     role: UserRole = UserRole.EMPLOYEE
