@@ -265,7 +265,10 @@ const Toolbar = ({
   showFilters,
   onToggleFilters,
   employees,
-  settings
+  settings,
+  userRole,
+  accessCode,
+  onLogout
 }) => {
   return (
     <div className="bg-white border-b border-gray-200 p-3">
