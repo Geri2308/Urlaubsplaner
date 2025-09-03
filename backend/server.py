@@ -272,7 +272,7 @@ async def delete_employee(employee_id: str):
 # Vacation Entry Management
 @api_router.post("/vacation-entries", response_model=VacationEntry)
 async def create_vacation_entry(vacation_data: VacationEntryCreate):
-    """Create a new vacation entry"""
+    """Create a new vacation entry with auto-generated 4-digit code"""
     # Validate employee exists
     employee = await get_employee_by_id(vacation_data.employee_id)
     if not employee:
