@@ -218,6 +218,51 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
 
 # API Endpoints
 
+# Authentication Routes
+@api_router.post("/auth/login", response_model=LoginResponse)
+async def login_with_code(login_data: LoginRequest):
+    """Login with 4-digit access code"""
+    # Check if code exists and is active
+    admin_code = await db.admin_codes.find_one({
+        "code": login_data.access_code,
+        "is_active": True
+    })
+    
+    if admin_code:
+        return LoginResponse(
+            success=True,
+            role=admin_code["role"],
+            message=f"Login successful as {admin_code['role']}"
+        )
+    else:
+        return LoginResponse(
+            success=False,
+            role="",
+            message="Invalid access code"
+        )
+
+@api_router.get("/auth/admin-codes")
+async def get_admin_codes():
+    """Get all admin codes (for setup/management)"""
+    codes = await db.admin_codes.find({"is_active": True}).to_list(100)
+    return codes
+
+@api_router.post("/auth/create-code")
+async def create_admin_code(code_data: dict):
+    """Create new admin code"""
+    # Generate random 4-digit code if not provided
+    if not code_data.get("code"):
+        code_data["code"] = ''.join(random.choices(string.digits, k=4))
+    
+    # Check if code already exists
+    existing = await db.admin_codes.find_one({"code": code_data["code"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Code already exists")
+    
+    admin_code = AdminCode(**code_data)
+    await db.admin_codes.insert_one(admin_code.dict())
+    return admin_code
+
 # Employee Management
 @api_router.post("/employees", response_model=Employee)
 async def create_employee(employee_data: EmployeeCreate):
