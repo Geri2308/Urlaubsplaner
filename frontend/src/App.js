@@ -1567,6 +1567,8 @@ function App() {
   const [sickDaysData, setSickDaysData] = useState({});
 
   const handleLogin = (role, code) => {
+    console.log('Handling login - Role:', role, 'Code:', code);
+    
     setUserRole(role);
     setAccessCode(code);
     setIsAuthenticated(true);
@@ -1576,6 +1578,8 @@ function App() {
     if (code) {
       localStorage.setItem('accessCode', code);
     }
+    
+    console.log('Login completed and stored in localStorage');
   };
 
   const handleLogout = () => {
