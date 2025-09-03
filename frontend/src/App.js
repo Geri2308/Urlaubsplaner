@@ -27,8 +27,11 @@ import {
   Minus
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://urlaubsplaner.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
+
+console.log('Backend URL:', BACKEND_URL);
+console.log('API URL:', API);
 
 // Login Component
 const LoginScreen = ({ onLogin }) => {
