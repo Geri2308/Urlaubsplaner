@@ -1615,6 +1615,12 @@ function App() {
       setVacationEntries(vacationRes.data);
       setSettings(settingsRes.data);
       setError('');
+      
+      // Load sick days data after employees are loaded
+      if (employeesRes.data.length > 0) {
+        await loadSickDaysData(employeesRes.data);
+      }
+      
     } catch (err) {
       console.error('Loading error details:', err);
       console.error('Error response:', err.response);
