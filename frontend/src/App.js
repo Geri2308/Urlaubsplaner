@@ -1741,10 +1741,11 @@ function App() {
       const sickDaysPromises = employeesList.map(async (employee) => {
         try {
           const response = await axios.get(`${API}/analytics/employee-sick-days/${employee.id}?year=2025`);
-          return { [employee.id]: response.data };
+          // Extract only the sick_days number, not the full object
+          return { [employee.id]: response.data.sick_days || 0 };
         } catch (error) {
           console.warn(`Failed to load sick days for ${employee.name}:`, error.message);
-          return { [employee.id]: { sick_days: 0, entries: [] } };
+          return { [employee.id]: 0 };
         }
       });
       
