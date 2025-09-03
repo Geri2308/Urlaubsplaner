@@ -30,6 +30,99 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Login Component
+const LoginScreen = ({ onLogin }) => {
+  const [accessCode, setAccessCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (accessCode.length !== 4) {
+      setError('Code muss 4-stellig sein');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        access_code: accessCode
+      });
+
+      if (response.data.success) {
+        onLogin(response.data.role, accessCode);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError('Fehler beim Login. Versuchen Sie es erneut.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewOnly = () => {
+    onLogin('viewer', null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Urlaubsplaner</h1>
+          <p className="text-gray-600">Geben Sie Ihren Admin-Code ein oder nutzen Sie den Ansichtsmodus</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              4-stelliger Code
+            </label>
+            <input
+              type="text"
+              value={accessCode}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                setAccessCode(value);
+                setError('');
+              }}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="****"
+              maxLength="4"
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={accessCode.length !== 4 || isLoading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? 'Anmelden...' : 'Admin-Zugang'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleViewOnly}
+            className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Nur Ansehen (für Spieler)
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-xs text-gray-500">
+          Kontaktieren Sie Ihren Administrator für einen Zugangs-Code
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Star Rating Component
 const StarRating = ({ rating, onRatingChange, readonly = false }) => {
   const stars = [1, 2, 3, 4, 5];
