@@ -1517,6 +1517,9 @@ const TeamManagementView = ({ employees, onEditEmployee, onDeleteEmployee, onDat
 
 // Main App Component
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState('');
+  const [accessCode, setAccessCode] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState('month');
   const [employees, setEmployees] = useState([]);
@@ -1538,10 +1541,44 @@ function App() {
   const [showSkillsDialog, setShowSkillsDialog] = useState(false);
   const [sickDaysData, setSickDaysData] = useState({});
 
+  const handleLogin = (role, code) => {
+    setUserRole(role);
+    setAccessCode(code);
+    setIsAuthenticated(true);
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('userRole', role);
+    if (code) {
+      localStorage.setItem('accessCode', code);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserRole('');
+    setAccessCode('');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('accessCode');
+  };
+
+  // Check for existing login on app start
+  useEffect(() => {
+    const savedRole = localStorage.getItem('userRole');
+    const savedCode = localStorage.getItem('accessCode');
+    
+    if (savedRole) {
+      setUserRole(savedRole);
+      setAccessCode(savedCode || '');
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   // Load initial data
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isAuthenticated) {
+      loadData();
+    }
+  }, [isAuthenticated]);
 
   const loadData = async () => {
     try {
@@ -1694,6 +1731,10 @@ function App() {
     console.log('Date clicked:', date);
     // Could open a day view or quick add dialog
   };
+
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
 
   if (loading) {
     return (
