@@ -248,6 +248,9 @@ def main():
     # Run all tests
     test_methods = [
         tester.test_health_check,
+        tester.test_login_with_code_5678,
+        tester.test_login_with_invalid_code,
+        tester.test_get_admin_codes,
         tester.test_get_settings,
         tester.test_get_employees,
         tester.test_create_employee,
