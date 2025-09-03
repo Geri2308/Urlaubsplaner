@@ -1545,7 +1545,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState('');
   const [accessCode, setAccessCode] = useState('');
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Start in January 2025
   const [currentView, setCurrentView] = useState('month');
   const [employees, setEmployees] = useState([]);
   const [vacationEntries, setVacationEntries] = useState([]);
