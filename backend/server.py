@@ -206,10 +206,23 @@ async def check_concurrent_vacations(start_date: date, end_date: date, exclude_e
 # Employee Management
 @api_router.post("/employees", response_model=Employee)
 async def create_employee(employee_data: EmployeeCreate):
-    """Create a new employee"""
-    employee = Employee(**employee_data.dict())
-    await db.employees.insert_one(employee.dict())
-    return employee
+    """Create a new employee with auto-generated 4-digit code"""
+    # Generate unique 4-digit code
+    employee_code = await ensure_unique_employee_code()
+    
+    employee_dict = employee_data.dict()
+    employee_dict["employee_code"] = employee_code
+    
+    employee_obj = Employee(**employee_dict)
+    
+    # Check if email already exists
+    if employee_obj.email:
+        existing_employee = await db.employees.find_one({"email": employee_obj.email})
+        if existing_employee:
+            raise HTTPException(status_code=400, detail="Email already registered")
+    
+    await db.employees.insert_one(employee_obj.dict())
+    return employee_obj
 
 @api_router.get("/employees", response_model=List[Employee])
 async def get_employees():
