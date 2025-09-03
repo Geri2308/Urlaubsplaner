@@ -36,6 +36,21 @@ class UserRole(str, Enum):
     EMPLOYEE = "employee"
     LEIHARBEITER = "leiharbeiter"
 
+# Authentication Models
+class AdminCode(BaseModel):
+    code: str
+    role: str = "admin"  # admin, manager, employee
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_active: bool = True
+
+class LoginRequest(BaseModel):
+    access_code: str
+
+class LoginResponse(BaseModel):
+    success: bool
+    role: str
+    message: str
+
 # Data Models
 class Skill(BaseModel):
     name: str
