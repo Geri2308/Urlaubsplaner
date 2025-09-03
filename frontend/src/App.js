@@ -81,7 +81,7 @@ const LoginScreen = ({ onLogin }) => {
               4-stelliger Code
             </label>
             <input
-              type="text"
+              type="password"
               value={accessCode}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, '').slice(0, 4);
@@ -89,7 +89,7 @@ const LoginScreen = ({ onLogin }) => {
                 setError('');
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="****"
+              placeholder="••••" 
               maxLength="4"
             />
           </div>
