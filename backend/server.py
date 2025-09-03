@@ -59,6 +59,7 @@ class EmployeeCreate(BaseModel):
 
 class VacationEntry(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    vacation_code: str = Field(default="")  # 4-digit code
     employee_id: str
     employee_name: str  # For easier frontend display
     start_date: date
